@@ -1,6 +1,6 @@
 <?php
 
-class ScheduleController extends Controller
+class WeekController extends Controller
 {
 	/**
 	 * @var string the default layout for the views. Defaults to '//layouts/column2', meaning
@@ -62,21 +62,46 @@ class ScheduleController extends Controller
 	 */
 	public function actionCreate()
 	{
-		$model=new Schedule;
-
+		$model=new Week;
 		// Uncomment the following line if AJAX validation is needed
 		// $this->performAjaxValidation($model);
-
-		if(isset($_POST['Schedule']))
+    #print_r($_POST);
+		if(isset($_POST['y']))
 		{
-			$model->attributes=$_POST['Schedule'];
-      $d = $_POST['day'];
-      $remove = array(0);
-      $result = array_diff($d, $remove);
-      $sc = implode('',$result);
-      $model->days=$sc;
-			if($model->save())
-				$this->redirect(array('view','id'=>$model->id));
+			#$model->attributes=$_POST['Week'];
+      $year = $_POST['y'];
+      $startYear = strtotime("$year-01-01");
+      $endYear = strtotime("$year-12-31");
+      $weeks = array();
+
+      while ($startYear < $endYear) {
+        $weeks[] = date('W', $startYear);
+        $startYear += strtotime('+1 week', 0);
+      }
+      $endWeek = end($weeks);
+      $a=1;
+      while ($a <= $endWeek) {
+        $model = new Week;
+        $weeks = date('W', $startYear);
+        $startYear += strtotime('+1 week', 0);
+        if ($a >= 10) {
+          $monday = date("Y-m-d",strtotime("$year"."W"."$a"));
+        }else {
+          $monday = date("Y-m-d",strtotime("$year"."W0"."$a"));
+        }
+        $add_days = 6;
+        $sunday = date('Y-m-d',strtotime($monday) + (24*3600*$add_days));
+        echo $weeks . "||"  . $monday . "||" . $sunday . "<br>";
+        $model->year=$year;
+        $model->week_no=$weeks;
+        $model->start_date=$monday;
+        $model->end_date=$sunday;
+        $model->save();
+        $a++;
+      }
+
+			#if($model->save())
+			#$this->redirect(array('view','id'=>$model->id));
 		}
 
 		$this->render('create',array(
@@ -96,9 +121,9 @@ class ScheduleController extends Controller
 		// Uncomment the following line if AJAX validation is needed
 		// $this->performAjaxValidation($model);
 
-		if(isset($_POST['Schedule']))
+		if(isset($_POST['Week']))
 		{
-			$model->attributes=$_POST['Schedule'];
+			$model->attributes=$_POST['Week'];
 			if($model->save())
 				$this->redirect(array('view','id'=>$model->id));
 		}
@@ -127,7 +152,7 @@ class ScheduleController extends Controller
 	 */
 	public function actionIndex()
 	{
-		$dataProvider=new CActiveDataProvider('Schedule');
+		$dataProvider=new CActiveDataProvider('Week');
 		$this->render('index',array(
 			'dataProvider'=>$dataProvider,
 		));
@@ -138,10 +163,10 @@ class ScheduleController extends Controller
 	 */
 	public function actionAdmin()
 	{
-		$model=new Schedule('search');
+		$model=new Week('search');
 		$model->unsetAttributes();  // clear any default values
-		if(isset($_GET['Schedule']))
-			$model->attributes=$_GET['Schedule'];
+		if(isset($_GET['Week']))
+			$model->attributes=$_GET['Week'];
 
 		$this->render('admin',array(
 			'model'=>$model,
@@ -152,12 +177,12 @@ class ScheduleController extends Controller
 	 * Returns the data model based on the primary key given in the GET variable.
 	 * If the data model is not found, an HTTP exception will be raised.
 	 * @param integer $id the ID of the model to be loaded
-	 * @return Schedule the loaded model
+	 * @return Week the loaded model
 	 * @throws CHttpException
 	 */
 	public function loadModel($id)
 	{
-		$model=Schedule::model()->findByPk($id);
+		$model=Week::model()->findByPk($id);
 		if($model===null)
 			throw new CHttpException(404,'The requested page does not exist.');
 		return $model;
@@ -165,11 +190,11 @@ class ScheduleController extends Controller
 
 	/**
 	 * Performs the AJAX validation.
-	 * @param Schedule $model the model to be validated
+	 * @param Week $model the model to be validated
 	 */
 	protected function performAjaxValidation($model)
 	{
-		if(isset($_POST['ajax']) && $_POST['ajax']==='schedule-form')
+		if(isset($_POST['ajax']) && $_POST['ajax']==='week-form')
 		{
 			echo CActiveForm::validate($model);
 			Yii::app()->end();

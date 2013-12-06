@@ -48,9 +48,22 @@
 	</div>
 
 	<div class="row">
-		<?php echo $form->labelEx($model,'days'); ?>
-		<?php echo $form->textField($model,'days',array('size'=>60,'maxlength'=>255)); ?>
-		<?php echo $form->error($model,'days'); ?>
+		  <?php echo $form->labelEx($model,'days'); ?></td>
+		  <?php echo $form->checkBox($model,'days',array('name'=>'day[]','value'=>'M')) . ' Monday'; ?><br>
+		  <?php echo $form->checkBox($model,'days',array('name'=>'day[]','value'=>'T')) . ' Tuesday'; ?><br>
+		  <?php echo $form->checkBox($model,'days',array('name'=>'day[]','value'=>'W')) . ' Wednesday'; ?><br>
+		  <?php echo $form->checkBox($model,'days',array('name'=>'day[]','value'=>'Th')) . ' Thursday'; ?><br>
+		  <?php echo $form->checkBox($model,'days',array('name'=>'day[]','value'=>'F')) . ' Friday'; ?><br>
+		  <?php echo $form->checkBox($model,'days',array('name'=>'day[]','value'=>'Sa')) . ' Saturday'; ?><br>
+		  <?php echo $form->checkBox($model,'days',array('name'=>'day[]','value'=>'Su')) . ' Sunday'; ?><br>
+	</div>
+
+  <br>
+
+	<div class="row">
+		<?php #echo $form->labelEx($model,'days'); ?>
+		<?php #echo $form->textField($model,'days',array('size'=>60,'maxlength'=>255)); ?>
+		<?php #echo $form->error($model,'days'); ?>
 	</div>
 
 	<div class="row buttons">
