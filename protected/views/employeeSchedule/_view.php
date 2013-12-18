@@ -17,9 +17,4 @@
 	<?php echo CHtml::encode($data->emp_id); ?>
 	<br />
 
-	<b><?php echo CHtml::encode($data->getAttributeLabel('week_id')); ?>:</b>
-	<?php echo CHtml::encode($data->week_id); ?>
-	<br />
-
-
 </div>
