@@ -26,11 +26,6 @@
 		<?php echo $form->textField($model,'emp_id'); ?>
 	</div>
 
-	<div class="row">
-		<?php echo $form->label($model,'week_id'); ?>
-		<?php echo $form->textField($model,'week_id'); ?>
-	</div>
-
 	<div class="row buttons">
 		<?php echo CHtml::submitButton('Search'); ?>
 	</div>
