@@ -7,10 +7,8 @@
  * @property integer $id
  * @property integer $sched_id
  * @property integer $emp_id
- * @property integer $week_id
  *
  * The followings are the available model relations:
- * @property Week $week
  * @property Schedule $sched
  * @property Employee $emp
  */
@@ -32,11 +30,11 @@ class EmployeeSchedule extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('sched_id, emp_id, week_id', 'required'),
-			array('sched_id, emp_id, week_id', 'numerical', 'integerOnly'=>true),
+		array('emp_id, sched_id','required'),
+		array('emp_id', 'numerical', 'integerOnly'=>true),
 			// The following rule is used by search().
 			// @todo Please remove those attributes that should not be searched.
-			array('id, sched_id, emp_id, week_id', 'safe', 'on'=>'search'),
+			array('id, sched_id, emp_id', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -48,7 +46,6 @@ class EmployeeSchedule extends CActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
-			'week' => array(self::BELONGS_TO, 'Week', 'week_id'),
 			'sched' => array(self::BELONGS_TO, 'Schedule', 'sched_id'),
 			'emp' => array(self::BELONGS_TO, 'Employee', 'emp_id'),
 		);
@@ -63,7 +60,6 @@ class EmployeeSchedule extends CActiveRecord
 			'id' => 'ID',
 			'sched_id' => 'Sched',
 			'emp_id' => 'Emp',
-			'week_id' => 'Week',
 		);
 	}
 
@@ -88,7 +84,6 @@ class EmployeeSchedule extends CActiveRecord
 		$criteria->compare('id',$this->id);
 		$criteria->compare('sched_id',$this->sched_id);
 		$criteria->compare('emp_id',$this->emp_id);
-		$criteria->compare('week_id',$this->week_id);
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,
