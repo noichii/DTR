@@ -10,10 +10,19 @@
  * @property string $date
  * @property string $checkin
  * @property string $checkout
- * @property string $late
  */
 class Checkinout extends CActiveRecord
 {
+	/**
+	 * Returns the static model of the specified AR class.
+	 * @param string $className active record class name.
+	 * @return Checkinout the static model class
+	 */
+	public static function model($className=__CLASS__)
+	{
+		return parent::model($className);
+	}
+
 	/**
 	 * @return string the associated database table name
 	 */
@@ -30,13 +39,12 @@ class Checkinout extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('user_id, name, date, checkin, checkout, late', 'required'),
+			array('user_id, name, date, checkin, checkout', 'required'),
 			array('user_id', 'numerical', 'integerOnly'=>true),
 			array('name', 'length', 'max'=>255),
-			array('late', 'length', 'max'=>25),
 			// The following rule is used by search().
-			// @todo Please remove those attributes that should not be searched.
-			array('id, user_id, name, date, checkin, checkout, late', 'safe', 'on'=>'search'),
+			// Please remove those attributes that should not be searched.
+			array('id, user_id, name, date, checkin, checkout', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -63,25 +71,18 @@ class Checkinout extends CActiveRecord
 			'date' => 'Date',
 			'checkin' => 'Checkin',
 			'checkout' => 'Checkout',
-			'late' => 'Late',
 		);
 	}
 
 	/**
 	 * Retrieves a list of models based on the current search/filter conditions.
-	 *
-	 * Typical usecase:
-	 * - Initialize the model fields with values from filter form.
-	 * - Execute this method to get CActiveDataProvider instance which will filter
-	 * models according to data in model fields.
-	 * - Pass data provider to CGridView, CListView or any similar widget.
-	 *
 	 * @return CActiveDataProvider the data provider that can return the models
 	 * based on the search/filter conditions.
 	 */
 	public function search()
 	{
-		// @todo Please modify the following code to remove attributes that should not be searched.
+		// Warning: Please modify the following code to remove attributes that
+		// should not be searched.
 
 		$criteria=new CDbCriteria;
 
@@ -91,21 +92,8 @@ class Checkinout extends CActiveRecord
 		$criteria->compare('date',$this->date,true);
 		$criteria->compare('checkin',$this->checkin,true);
 		$criteria->compare('checkout',$this->checkout,true);
-		$criteria->compare('late',$this->late,true);
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,
 		));
 	}
-
-	/**
-	 * Returns the static model of the specified AR class.
-	 * Please note that you should have this exact method in all your CActiveRecord descendants!
-	 * @param string $className active record class name.
-	 * @return Checkinout the static model class
-	 */
-	public static function model($className=__CLASS__)
-	{
-		return parent::model($className);
-	}
-}

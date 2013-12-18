@@ -5,9 +5,13 @@
  *
  * The followings are the available columns in table 'schedule':
  * @property integer $id
- * @property string $checkin
- * @property string $checkout
- * @property string $days
+ * @property string $mon
+ * @property string $tue
+ * @property string $wed
+ * @property string $thur
+ * @property string $fri
+ * @property string $sat
+ * @property string $sun
  */
 class Schedule extends CActiveRecord
 {
@@ -37,11 +41,10 @@ class Schedule extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('checkin, checkout, days', 'required'),
-			array('days', 'length', 'max'=>255),
+			array('mon, tue, wed, thur, fri, sat, sun', 'length', 'max'=>100),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('id, checkin, checkout, days', 'safe', 'on'=>'search'),
+			array('id, mon, tue, wed, thur, fri, sat, sun', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -63,9 +66,13 @@ class Schedule extends CActiveRecord
 	{
 		return array(
 			'id' => 'ID',
-			'checkin' => 'Checkin',
-			'checkout' => 'Checkout',
-			'days' => 'Days',
+			'mon' => 'Mon',
+			'tue' => 'Tue',
+			'wed' => 'Wed',
+			'thur' => 'Thur',
+			'fri' => 'Fri',
+			'sat' => 'Sat',
+			'sun' => 'Sun',
 		);
 	}
 
@@ -81,9 +88,13 @@ class Schedule extends CActiveRecord
 		$criteria=new CDbCriteria;
 
 		$criteria->compare('id',$this->id);
-		$criteria->compare('checkin',$this->checkin,true);
-		$criteria->compare('checkout',$this->checkout,true);
-		$criteria->compare('days',$this->days,true);
+		$criteria->compare('mon',$this->mon,true);
+		$criteria->compare('tue',$this->tue,true);
+		$criteria->compare('wed',$this->wed,true);
+		$criteria->compare('thur',$this->thur,true);
+		$criteria->compare('fri',$this->fri,true);
+		$criteria->compare('sat',$this->sat,true);
+		$criteria->compare('sun',$this->sun,true);
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,

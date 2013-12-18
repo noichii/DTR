@@ -1,6 +1,6 @@
 <?php
 
-class ScheduleController extends Controller
+class CheckinoutController extends Controller
 {
 	/**
 	 * @var string the default layout for the views. Defaults to '//layouts/column2', meaning
@@ -14,8 +14,9 @@ class ScheduleController extends Controller
 	public function filters()
 	{
 		return array(
-			'accessControl', // perform access control for CRUD operations
-			'postOnly + delete', // we only allow deletion via POST request
+			#'accessControl', // perform access control for CRUD operations
+			#'postOnly + delete', // we only allow deletion via POST request
+      'rights',
 		);
 	}
 
@@ -62,87 +63,14 @@ class ScheduleController extends Controller
 	 */
 	public function actionCreate()
 	{
-		$model=new Schedule;
+		$model=new Checkinout;
 
 		// Uncomment the following line if AJAX validation is needed
 		// $this->performAjaxValidation($model);
 
-		if(isset($_POST['sched']))
+		if(isset($_POST['Checkinout']))
 		{
-      $schedType = $_POST['sched'];
-      if ($schedType == 'fixed') {
-        $cfrom = $_POST['checkinFrom'];
-        $cto   = $_POST['checkinTo'];
-        $time  = $cfrom .' - '. $cto;
-        $mon = $_POST['mo']; 
-        $tue = $_POST['tu']; 
-        $wed = $_POST['we']; 
-        $thu = $_POST['th']; 
-        $fri = $_POST['fr']; 
-        $sat = $_POST['sa']; 
-        $sun = $_POST['su']; 
-        //fixed 
-        if ($mon)
-          $model->mon=$time;
-        if ($tue)
-          $model->tue=$time;
-        if ($wed)
-          $model->wed=$time;
-        if ($thu)
-          $model->thur=$time;
-        if ($fri)
-          $model->fri=$time;
-        if ($sat)
-          $model->sat=$time;
-        if ($sun)
-          $model->sun=$time;
-      }elseif ($schedType == 'custom'){
-        $cusMonFrom = $_POST['monFrom']; 
-        $cusTueFrom = $_POST['tueFrom']; 
-        $cusWedFrom = $_POST['wedFrom']; 
-        $cusThuFrom = $_POST['thurFrom']; 
-        $cusFriFrom = $_POST['friFrom']; 
-        $cusSatFrom = $_POST['satFrom']; 
-        $cusSunFrom = $_POST['sunFrom']; 
-        $cusMonTo = $_POST['monTo']; 
-        $cusTueTo = $_POST['tueTo']; 
-        $cusWedTo = $_POST['wedTo']; 
-        $cusThuTo = $_POST['thurTo']; 
-        $cusFriTo = $_POST['friTo']; 
-        $cusSatTo = $_POST['satTo']; 
-        $cusSunTo = $_POST['sunTo']; 
-       
-        //custom
-        if ($cusMonFrom != '00:00'){
-          $mon = "$cusMonFrom - $cusMonTo";
-          $model->mon=$mon;
-        }
-        if ($cusTueFrom != '00:00'){
-          $tue = "$cusTueFrom - $cusTueTo";
-          $model->tue=$tue;
-        }
-        if ($cusWedFrom != '00:00'){
-          $wed = "$cusWedFrom - $cusWedTo";
-          $model->wed=$wed;
-        }
-        if ($cusThuFrom != '00:00'){
-          $thur = "$cusThuFrom - $cusThuTo";
-          $model->thur=$thur;
-        }
-        if ($cusFriFrom != '00:00'){
-          $fri = "$cusFriFrom - $cusFriTo";
-          $model->fri=$fri;
-        }
-        if ($cusSatFrom != '00:00'){
-          $sat = "$cusSatFrom - $cusSatTo";
-          $model->sat=$sat;
-        }
-        if ($cusSunFrom != '00:00'){
-          $sun = "$cusSunFrom - $cusSunTo";
-          $model->sun=$sun;
-        }
-      }
-			#$model->attributes=$_POST['Schedule'];
+			$model->attributes=$_POST['Checkinout'];
 			if($model->save())
 				$this->redirect(array('view','id'=>$model->id));
 		}
@@ -164,9 +92,9 @@ class ScheduleController extends Controller
 		// Uncomment the following line if AJAX validation is needed
 		// $this->performAjaxValidation($model);
 
-		if(isset($_POST['Schedule']))
+		if(isset($_POST['Checkinout']))
 		{
-			$model->attributes=$_POST['Schedule'];
+			$model->attributes=$_POST['Checkinout'];
 			if($model->save())
 				$this->redirect(array('view','id'=>$model->id));
 		}
@@ -195,7 +123,7 @@ class ScheduleController extends Controller
 	 */
 	public function actionIndex()
 	{
-		$dataProvider=new CActiveDataProvider('Schedule');
+		$dataProvider=new CActiveDataProvider('Checkinout');
 		$this->render('index',array(
 			'dataProvider'=>$dataProvider,
 		));
@@ -206,10 +134,10 @@ class ScheduleController extends Controller
 	 */
 	public function actionAdmin()
 	{
-		$model=new Schedule('search');
+		$model=new Checkinout('search');
 		$model->unsetAttributes();  // clear any default values
-		if(isset($_GET['Schedule']))
-			$model->attributes=$_GET['Schedule'];
+		if(isset($_GET['Checkinout']))
+			$model->attributes=$_GET['Checkinout'];
 
 		$this->render('admin',array(
 			'model'=>$model,
@@ -220,12 +148,12 @@ class ScheduleController extends Controller
 	 * Returns the data model based on the primary key given in the GET variable.
 	 * If the data model is not found, an HTTP exception will be raised.
 	 * @param integer $id the ID of the model to be loaded
-	 * @return Schedule the loaded model
+	 * @return Checkinout the loaded model
 	 * @throws CHttpException
 	 */
 	public function loadModel($id)
 	{
-		$model=Schedule::model()->findByPk($id);
+		$model=Checkinout::model()->findByPk($id);
 		if($model===null)
 			throw new CHttpException(404,'The requested page does not exist.');
 		return $model;
@@ -233,14 +161,57 @@ class ScheduleController extends Controller
 
 	/**
 	 * Performs the AJAX validation.
-	 * @param Schedule $model the model to be validated
+	 * @param Checkinout $model the model to be validated
 	 */
 	protected function performAjaxValidation($model)
 	{
-		if(isset($_POST['ajax']) && $_POST['ajax']==='schedule-form')
+		if(isset($_POST['ajax']) && $_POST['ajax']==='checkinout-form')
 		{
 			echo CActiveForm::validate($model);
 			Yii::app()->end();
 		}
 	}
+
+  public function actionManpower()
+  {
+    $model=new Checkinout;
+
+    // uncomment the following code to enable ajax-based validation
+    /*
+    if(isset($_POST['ajax']) && $_POST['ajax']==='checkinout-manpower-form')
+    {
+        echo CActiveForm::validate($model);
+        Yii::app()->end();
+    }
+    */
+
+    if(isset($_GET['Checkinout']))
+    {
+        $model->attributes=$_GET['Checkinout'];
+        if($model->validate())
+        {
+            // form inputs are valid, do something here
+            return;
+        }
+    }
+    $this->render('manpower',array('model'=>$model));
+  }
+
+  protected function dataColumn($data)
+  {
+    $date = $data->date;
+    $timeIn = $data->checkin;
+    $dateTimeIn = $date.' '.$timeIn;
+    
+    $schedIn = $date.' 09:00:00';
+    $schedTime = strtotime($schedIn);
+    $logTime = strtotime($dateTimeIn);
+    if ($logTime > $schedTime) {
+      $lt = floor(abs($logTime - $schedTime) / 60);
+    }else {
+      $lt = 0;
+    }
+    return 	$lt;
+    //return 	print_r($data);
+  }
 }
