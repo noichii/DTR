@@ -53,6 +53,8 @@ class Schedule extends CActiveRecord
 	 */
 	public function relations()
 	{
+		'scheds' => array(self::HAS_MANY, 'EmployeeSchedule', 'sched_id', 'joinType' => 'INNER JOIN',),
+	        );
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
