@@ -97,3 +97,4 @@ class Checkinout extends CActiveRecord
 			'criteria'=>$criteria,
 		));
 	}
+	}
