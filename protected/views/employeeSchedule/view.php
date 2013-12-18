@@ -24,6 +24,5 @@ $this->menu=array(
 		'id',
 		'sched_id',
 		'emp_id',
-		'week_id',
 	),
 )); ?>

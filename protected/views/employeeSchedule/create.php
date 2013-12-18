@@ -7,12 +7,12 @@ $this->breadcrumbs=array(
 	'Create',
 );
 
-$this->menu=array(
+/*$this->menu=array(
 	array('label'=>'List EmployeeSchedule', 'url'=>array('index')),
 	array('label'=>'Manage EmployeeSchedule', 'url'=>array('admin')),
-);
+);*/
 ?>
 
 <h1>Create EmployeeSchedule</h1>
 
-<?php $this->renderPartial('_form', array('model'=>$model,'emps_lists'=>$emps_lists,'startDate'=>$startDate,'endDate'=>$endDate,'employees'=>$employees)); ?>
+<?php $this->renderPartial('_form', array('model'=>$model,'employee'=>$employee,'alert'=>$alert,'emp'=>$emp)); ?>

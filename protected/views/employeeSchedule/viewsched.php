@@ -15,4 +15,12 @@ $this->menu=array(
 
 <h1>View EmployeeSchedule</h1>
 
-<?php $this->renderPartial('_viewsched', array('model'=>$model,'emps_lists'=>$emps_lists,'startDate'=>$startDate,'endDate'=>$endDate,'employees'=>$employees)); ?>
+<?php $this->renderPartial('_viewsched', array(
+	'model'=>$model,
+	'emps_lists'=>$emps_lists,
+	'startDate'=>$startDate,
+	'endDate'=>$endDate,
+	'employees'=>$employees,
+	'alert'=>$alert,
+	'department'=>$department,
+	)); ?>
