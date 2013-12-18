@@ -11,65 +11,274 @@
 	'enableAjaxValidation'=>false,
 )); ?>
 
-	<p class="note">Fields with <span class="required">*</span> are required.</p>
+<table>
+  <tr>
+    <td>
+      <input type="radio" id="sched" name="sched" value="fixed" onclick="rad1();" checked>Fixed
+      <input type="radio" id="sched" name="sched" value="custom" onclick="rad2();">Custom
+    <td>
+  </tr>
+</table>
 
-	<?php echo $form->errorSummary($model); ?>
 
-	<div class="row">
-		<?php echo $form->labelEx($model,'checkin'); ?>
-    <?php 
-      $this->widget(
-    'bootstrap.widgets.TbTimePicker',
-      array(
-        'model' => $model,
-        'attribute' => 'checkin',
-        'options' => array(
-            'showMeridian' => false
+<table id="fixed">
+  <tr>
+    <td>
+      <?php echo "From"; ?><br>
+      <?php $this->widget(
+      'bootstrap.widgets.TbTimePicker',
+        array(
+          'name' => 'checkinFrom',
+          'value' => '',
+          'options' => array(
+            'showMeridian'=>false
+          )
         )
-      )
-    );
-    ?>
-	</div>
-
-	<div class="row">
-		<?php echo $form->labelEx($model,'checkout'); ?>
-    <?php 
-      $this->widget(
-    'bootstrap.widgets.TbTimePicker',
-      array(
-        'model' => $model,
-        'attribute' => 'checkout',
-        'options' => array(
-            'showMeridian' => false
+      ); ?>
+      <br>
+      <?php echo "To"; ?><br>
+      <?php $this->widget(
+      'bootstrap.widgets.TbTimePicker',
+        array(
+          'name' => 'checkinTo',
+          'value' => null,
+          'options' => array(
+            'showMeridian'=>false
+          )
         )
-      )
-    );
-    ?>
-	</div>
+      ); ?>
+    </td>
+  </tr>
 
-	<div class="row">
-		  <?php echo $form->labelEx($model,'days'); ?></td>
-		  <?php echo $form->checkBox($model,'days',array('name'=>'day[]','value'=>'M')) . ' Monday'; ?><br>
-		  <?php echo $form->checkBox($model,'days',array('name'=>'day[]','value'=>'T')) . ' Tuesday'; ?><br>
-		  <?php echo $form->checkBox($model,'days',array('name'=>'day[]','value'=>'W')) . ' Wednesday'; ?><br>
-		  <?php echo $form->checkBox($model,'days',array('name'=>'day[]','value'=>'Th')) . ' Thursday'; ?><br>
-		  <?php echo $form->checkBox($model,'days',array('name'=>'day[]','value'=>'F')) . ' Friday'; ?><br>
-		  <?php echo $form->checkBox($model,'days',array('name'=>'day[]','value'=>'Sa')) . ' Saturday'; ?><br>
-		  <?php echo $form->checkBox($model,'days',array('name'=>'day[]','value'=>'Su')) . ' Sunday'; ?><br>
-	</div>
+  <tr>
+    <td>
+      <?php echo "Days:"; ?><br>
+      <?php echo $form->checkBox($model,'mon',array('name'=>'mo')) . ' Monday'; ?><br>
+      <?php echo $form->checkBox($model,'mon',array('name'=>'tu')) . ' Tuesday'; ?><br>
+      <?php echo $form->checkBox($model,'mon',array('name'=>'we')) . ' Wednesday'; ?><br>
+      <?php echo $form->checkBox($model,'mon',array('name'=>'th')) . ' Thursday'; ?><br>
+      <?php echo $form->checkBox($model,'mon',array('name'=>'fr')) . ' Friday'; ?><br>
+      <?php echo $form->checkBox($model,'mon',array('name'=>'sa')) . ' Saturday'; ?><br>
+      <?php echo $form->checkBox($model,'mon',array('name'=>'su')) . ' Sunday'; ?><br>
+    </td>
+  </tr>
 
-  <br>
+  <tr>
+    <td>
 
-	<div class="row">
-		<?php #echo $form->labelEx($model,'days'); ?>
-		<?php #echo $form->textField($model,'days',array('size'=>60,'maxlength'=>255)); ?>
-		<?php #echo $form->error($model,'days'); ?>
-	</div>
+    </td>
+  </tr>
+</table>
 
-	<div class="row buttons">
-		<?php echo CHtml::submitButton($model->isNewRecord ? 'Create' : 'Save'); ?>
-	</div>
+<table id="custom">
+  <tr>
+    <td>
+      <?php echo $form->labelEx($model,'mon'); ?>
+      <?php $this->widget(
+      'bootstrap.widgets.TbTimePicker',
+        array(
+          'name' => 'monFrom',
+          'value' => 'null',
+          'options' => array(
+            'showMeridian'=>false
+          )
+        )
+      ); ?> -
+      <?php $this->widget(
+      'bootstrap.widgets.TbTimePicker',
+        array(
+          'name' => 'monTo',
+          'value' => 'null',
+          'options' => array(
+            'showMeridian'=>false
+          )
+        )
+      ); ?>
+    </td>
+  </tr>
+
+  <tr>
+    <td>
+      <?php echo $form->labelEx($model,'tue'); ?>
+      <?php $this->widget(
+      'bootstrap.widgets.TbTimePicker',
+        array(
+          'name' => 'tueFrom',
+          'value' => 'null',
+          'options' => array(
+            'showMeridian'=>false
+          )
+        )
+      ); ?> -
+      <?php $this->widget(
+      'bootstrap.widgets.TbTimePicker',
+        array(
+          'name' => 'tueTo',
+          'value' => 'null',
+          'options' => array(
+            'showMeridian'=>false
+          )
+        )
+      ); ?>
+    </td>
+  </tr>
+
+  <tr>
+    <td>
+      <?php echo $form->labelEx($model,'wed'); ?>
+      <?php $this->widget(
+      'bootstrap.widgets.TbTimePicker',
+        array(
+          'name' => 'wedFrom',
+          'value' => 'null',
+          'options' => array(
+            'showMeridian'=>false
+          )
+        )
+      ); ?> -
+      <?php $this->widget(
+      'bootstrap.widgets.TbTimePicker',
+        array(
+          'name' => 'wedTo',
+          'value' => 'null',
+          'options' => array(
+            'showMeridian'=>false
+          )
+        )
+      ); ?>
+    </td>
+  </tr>
+
+  <tr>
+    <td>
+      <?php echo $form->labelEx($model,'thur'); ?>
+      <?php $this->widget(
+      'bootstrap.widgets.TbTimePicker',
+        array(
+          'name' => 'thurFrom',
+          'value' => 'null',
+          'options' => array(
+            'showMeridian'=>false
+          )
+        )
+      ); ?> -
+      <?php $this->widget(
+      'bootstrap.widgets.TbTimePicker',
+        array(
+          'name' => 'thurTo',
+          'value' => 'null',
+          'options' => array(
+            'showMeridian'=>false
+          )
+        )
+      ); ?>
+    </td>
+  </tr>
+
+  <tr>
+    <td>
+      <?php echo $form->labelEx($model,'fri'); ?>
+      <?php $this->widget(
+      'bootstrap.widgets.TbTimePicker',
+        array(
+          'name' => 'friFrom',
+          'value' => 'null',
+          'options' => array(
+            'showMeridian'=>false
+          )
+        )
+      ); ?> -
+      <?php $this->widget(
+      'bootstrap.widgets.TbTimePicker',
+        array(
+          'name' => 'friTo',
+          'value' => 'null',
+          'options' => array(
+            'showMeridian'=>false
+          )
+        )
+      ); ?>
+    </td>
+  </tr>
+
+  <tr>
+    <td>
+      <?php echo $form->labelEx($model,'sat'); ?>
+      <?php $this->widget(
+      'bootstrap.widgets.TbTimePicker',
+        array(
+          'name' => 'satFrom',
+          'value' => 'null',
+          'options' => array(
+            'showMeridian'=>false
+          )
+        )
+      ); ?> -
+      <?php $this->widget(
+      'bootstrap.widgets.TbTimePicker',
+        array(
+          'name' => 'satTo',
+          'value' => 'null',
+          'options' => array(
+            'showMeridian'=>false
+          )
+        )
+      ); ?>
+    </td>
+  </tr>
+
+  <tr>
+    <td>
+      <?php echo $form->labelEx($model,'sun'); ?>
+      <?php $this->widget(
+      'bootstrap.widgets.TbTimePicker',
+        array(
+          'name' => 'sunFrom',
+          'value' => 'null',
+          'options' => array(
+            'showMeridian'=>false
+          )
+        )
+      ); ?> -
+      <?php $this->widget(
+      'bootstrap.widgets.TbTimePicker',
+        array(
+          'name' => 'sunTo',
+          'value' => 'null',
+          'options' => array(
+            'showMeridian'=>false
+          )
+        )
+      ); ?>
+    </td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <td>
+      <?php $this->widget('bootstrap.widgets.TbButton', array(
+        'buttonType'=>'submit',
+        'type'=>'primary',
+        'label'=>$model->isNewRecord ? 'Create Schedule' : 'Save',
+      )); ?>
+    </td>
+  </tr>
+</table>
 
 <?php $this->endWidget(); ?>
 
 </div><!-- form -->
+<script>
+$('#custom').hide();
+    function rad1(){
+        $('#custom').hide();
+        $('#fixed').show();
+    }  
+    function rad2(){
+        $('#custom').show();
+        $('#fixed').hide();
+    }  
+
+</script>
+

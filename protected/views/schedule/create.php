@@ -7,10 +7,6 @@ $this->breadcrumbs=array(
 	'Create',
 );
 
-$this->menu=array(
-	array('label'=>'List Schedule', 'url'=>array('index')),
-	array('label'=>'Manage Schedule', 'url'=>array('admin')),
-);
 ?>
 
 <h1>Create Schedule</h1>

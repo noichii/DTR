@@ -22,8 +22,12 @@ $this->menu=array(
 	'data'=>$model,
 	'attributes'=>array(
 		'id',
-		'checkin',
-		'checkout',
-		'days',
+		'mon',
+		'tue',
+		'wed',
+		'thur',
+		'fri',
+		'sat',
+		'sun',
 	),
 )); ?>

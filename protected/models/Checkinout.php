@@ -1,24 +1,22 @@
 <?php
 
 /**
- * This is the model class for table "schedule".
+ * This is the model class for table "checkinout".
  *
- * The followings are the available columns in table 'schedule':
+ * The followings are the available columns in table 'checkinout':
  * @property integer $id
- * @property string $mon
- * @property string $tue
- * @property string $wed
- * @property string $thur
- * @property string $fri
- * @property string $sat
- * @property string $sun
+ * @property integer $user_id
+ * @property string $name
+ * @property string $date
+ * @property string $checkin
+ * @property string $checkout
  */
-class Schedule extends CActiveRecord
+class Checkinout extends CActiveRecord
 {
 	/**
 	 * Returns the static model of the specified AR class.
 	 * @param string $className active record class name.
-	 * @return Schedule the static model class
+	 * @return Checkinout the static model class
 	 */
 	public static function model($className=__CLASS__)
 	{
@@ -30,7 +28,7 @@ class Schedule extends CActiveRecord
 	 */
 	public function tableName()
 	{
-		return 'schedule';
+		return 'checkinout';
 	}
 
 	/**
@@ -41,10 +39,12 @@ class Schedule extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('mon, tue, wed, thur, fri, sat, sun', 'length', 'max'=>100),
+			array('user_id, name, date, checkin, checkout', 'required'),
+			array('user_id', 'numerical', 'integerOnly'=>true),
+			array('name', 'length', 'max'=>255),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('id, mon, tue, wed, thur, fri, sat, sun', 'safe', 'on'=>'search'),
+			array('id, user_id, name, date, checkin, checkout', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -66,13 +66,11 @@ class Schedule extends CActiveRecord
 	{
 		return array(
 			'id' => 'ID',
-			'mon' => 'Mon',
-			'tue' => 'Tue',
-			'wed' => 'Wed',
-			'thur' => 'Thur',
-			'fri' => 'Fri',
-			'sat' => 'Sat',
-			'sun' => 'Sun',
+			'user_id' => 'User',
+			'name' => 'Name',
+			'date' => 'Date',
+			'checkin' => 'Checkin',
+			'checkout' => 'Checkout',
 		);
 	}
 
@@ -88,13 +86,11 @@ class Schedule extends CActiveRecord
 		$criteria=new CDbCriteria;
 
 		$criteria->compare('id',$this->id);
-		$criteria->compare('mon',$this->mon,true);
-		$criteria->compare('tue',$this->tue,true);
-		$criteria->compare('wed',$this->wed,true);
-		$criteria->compare('thur',$this->thur,true);
-		$criteria->compare('fri',$this->fri,true);
-		$criteria->compare('sat',$this->sat,true);
-		$criteria->compare('sun',$this->sun,true);
+		$criteria->compare('user_id',$this->user_id);
+		$criteria->compare('name',$this->name,true);
+		$criteria->compare('date',$this->date,true);
+		$criteria->compare('checkin',$this->checkin,true);
+		$criteria->compare('checkout',$this->checkout,true);
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,

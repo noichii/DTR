@@ -17,18 +17,38 @@
 	</div>
 
 	<div class="row">
-		<?php echo $form->label($model,'checkin'); ?>
-		<?php echo $form->textField($model,'checkin'); ?>
+		<?php echo $form->label($model,'mon'); ?>
+		<?php echo $form->textField($model,'mon',array('size'=>60,'maxlength'=>100)); ?>
 	</div>
 
 	<div class="row">
-		<?php echo $form->label($model,'checkout'); ?>
-		<?php echo $form->textField($model,'checkout'); ?>
+		<?php echo $form->label($model,'tue'); ?>
+		<?php echo $form->textField($model,'tue',array('size'=>60,'maxlength'=>100)); ?>
 	</div>
 
 	<div class="row">
-		<?php echo $form->label($model,'days'); ?>
-		<?php echo $form->textField($model,'days',array('size'=>60,'maxlength'=>255)); ?>
+		<?php echo $form->label($model,'wed'); ?>
+		<?php echo $form->textField($model,'wed',array('size'=>60,'maxlength'=>100)); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->label($model,'thur'); ?>
+		<?php echo $form->textField($model,'thur',array('size'=>60,'maxlength'=>100)); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->label($model,'fri'); ?>
+		<?php echo $form->textField($model,'fri',array('size'=>60,'maxlength'=>100)); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->label($model,'sat'); ?>
+		<?php echo $form->textField($model,'sat',array('size'=>60,'maxlength'=>100)); ?>
+	</div>
+
+	<div class="row">
+		<?php echo $form->label($model,'sun'); ?>
+		<?php echo $form->textField($model,'sun',array('size'=>60,'maxlength'=>100)); ?>
 	</div>
 
 	<div class="row buttons">
