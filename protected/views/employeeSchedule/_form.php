@@ -97,6 +97,9 @@
 	$varPush = null;
 	$output = array();
 	}
+echo "<pre>";
+print_r($days);
+echo "</pre>";
 
 	echo "Schedule:  ";
 	$this->widget(

@@ -195,11 +195,8 @@ class EmployeeScheduleController extends Controller
 
 		$department = Department::model()->findAll();	//Department
 		
-		$checkinout = Checkinout::model()->findAll();  //Checkin.out
-		echo "<pre>";
-print_r($checkinout);
-		echo "</pre>";
 
+		$checkinout = null;
 		$startDate = null;
 		$endDate = null;
 		$emps_lists = null;
@@ -210,6 +207,10 @@ print_r($checkinout);
 			if(strtotime($startDate) > strtotime($endDate)){
 				$alert = '<div class="alert-error" style="padding:10px;">ERROR<br />Invalid Date</div>';
 			}else{
+						$checkinout = Yii::app()->db->createCommand('
+							SELECT * FROM `checkinout` where (date >= "'.$startDate.'" && date <= "'.$endDate.'") && user_id = '.$id
+							)->queryAll();  //Checkin.out
+
 						$emps_lists=Yii::app()->db->createCommand('
 														SELECT e.id, e.firstname, e.lastname, es.emp_id, es.start_date, es.end_date, s.mon, s.tue, s.wed, s.thur, s.fri, s.sat, s.sun 
 														FROM employee AS e 
@@ -230,6 +231,7 @@ print_r($checkinout);
 			'employees' => $employees,
 			'alert'=>$alert,
 			'department'=>$department,
+			'checkinout'=>$checkinout,
 		));
 	}
 	/**

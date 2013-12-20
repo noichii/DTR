@@ -72,6 +72,9 @@ echo $form->datepickerRow($model,'end_date',array(
 <br>
 <table border=1>
 <?php
+$checkdate = null;
+$late = null;
+$ut = null;
 $check = '';
 $currDate ='';
 $currD ='';
@@ -120,15 +123,48 @@ $io = null;
 						}
 					}
 			endforeach; //foreach lists
-			$currD .= "<td>".$checksched."</td>";
-			$checksched ='';
 
-			$io .= "<td>".$chkins."</td>";
+			foreach($checkinout as $inouts):
+				if(strtotime($chkins) == strtotime($inouts['date'])){
+					$checkdate = date('H:i',strtotime($inouts['checkin'])).' - '.date('H:i',strtotime($inouts['checkout']));
+				}
+			endforeach;//foreach inout
+			$currD .= "<td>".$checksched."</td>"; //schedule
+
+			$io .= "<td>".$checkdate."</td>"; //checkin
+
+			#CHECK IF LATE
+			$checkifLate = (strtotime(substr($checkdate, 0, 5)) - strtotime(substr($checksched, 0, 5))) / 60;
+			if($checksched != null && $checkdate != null){
+				if(strtotime($checkifLate) <= 0){
+					$late .= "<td>".$checkifLate."</td>";
+				}else{
+					$late .= "<td></td>";
+				}
+			}else{
+				$late .= "<td></td>";
+			}
+
+			#CHECK IF UNDERTIME
+			$checkifUnder = (strtotime(substr($checksched, 8)) - strtotime(substr($checkdate, 8))) / 60;
+			if($checksched != null && $checkdate != null){
+				if(strtotime($checkifUnder) <= 0){
+					$ut .= "<td>".$checkifUnder."</td>";
+				}else{
+					$ut .= "<td></td>";
+				}
+			}else{
+				$ut .= "<td></td>";
+			}
+
 			$chkins = date('Y-m-d', strtotime('+1 day', strtotime($chkins)));
+			$checksched ='';
 		}
 	}
 		echo $empname = "<tr class='".$emp['department_id']."'><td>".CHtml::link($emp['firstname'].", ".$emp['lastname'],array('employeeSchedule/empSched','id'=>$emp['id']))."</td>".$currD."</tr>";
-		echo "<tr><td>Checkin/Checkout</td>".$io."</tr>";
+		echo "<tr><td>Checkin - Checkout</td>".$io."</tr>";
+		echo "<tr><td>Late in Minutes</td>".$late."</tr>";
+		echo "<tr><td>Undertime in Minutes</td>".$ut."</tr>";
 		$currD = null;
 		$io = null;
 

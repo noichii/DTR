@@ -23,4 +23,5 @@ $this->menu=array(
 	'employees'=>$employees,
 	'alert'=>$alert,
 	'department'=>$department,
+	'checkinout'=>$checkinout,
 	)); ?>
