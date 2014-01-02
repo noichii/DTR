@@ -13,8 +13,6 @@ $this->menu=array(
 );
 ?>
 
-<h1>View EmployeeSchedule</h1>
-
 <?php $this->renderPartial('_empsched', array(
 	'model'=>$model,
 	'emps_lists'=>$emps_lists,
