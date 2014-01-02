@@ -13,7 +13,7 @@ $this->menu=array(
 );
 ?>
 
-<h1>View EmployeeSchedule</h1>
+<h2>Employees List of Schedule</h2>
 
 <?php $this->renderPartial('_viewsched', array(
 	'model'=>$model,
