@@ -63,6 +63,18 @@ class EmployeeScheduleController extends Controller
 	public function actionCreate(){
 
 		$model=new EmployeeSchedule;
+		$checkifExist = EmployeeSchedule::model()->findAll();
+		
+		$emp_s = array();
+		foreach($checkifExist as $w){
+			$emp_s[] = array(
+				'emp_id' => $w['emp_id'],
+				'start_date' => $w['start_date'],
+				'end_date' => $w['end_date'],
+				);
+		}
+		
+
 		$employee = Employee::model()->findAll();
     $emp = array();
 		    foreach($employee as $emps){
@@ -78,6 +90,7 @@ class EmployeeScheduleController extends Controller
 		$scheduleselect = $_POST['sched_sel'];
 		$startD = $_POST['startDate'];
 		$endD = $_POST['endDate'];
+		
 		if($employeeselect == null){$alertTo .= '* Employee/s Must not be Empty<br>';}
 		if($scheduleselect == null){$alertTo .= '* Schedule Must not be Empty<br>';}
 		if($startD == null){$alertTo .= '* Start Date Must not be Empty<br>';}
@@ -86,6 +99,7 @@ class EmployeeScheduleController extends Controller
 		if($alertTo != null){
 				$alert = '<div class="alert-error" style="padding:10px;">ERROR<br />'.$alertTo.'</div>';
 		}else{
+
 
 		$arr_sched = explode('.',$scheduleselect);
 		$saveit = 0;
@@ -113,12 +127,32 @@ class EmployeeScheduleController extends Controller
 		endforeach;
 		if($saveit == 0){
 			foreach($output as $key => $value):
+				while(strtotime($startD) <= strtotime($endD)){
+				/*
+				foreach($emp_s as $e):
+					echo	$e['start_date']."x";
+					echo $startD;
+					if(strval($key) == $e['emp_id']){
+					#	if(strtotime($e['start_date']) <= strtotime($startD) && strtotime($e['end_date']) >= strtotime($startD))){
+					echo $key."--------".$e['emp_id'];
+						echo "already exist";
+						break;
+					}
+					else{
+						echo "ok to";
+						break;
+					}
+				endforeach;
+				**/
+					$startD = date('Y-m-d', strtotime('+1 day', strtotime($startD)));
+				}
+
 						$model = new EmployeeSchedule;
 						$model->emp_id = $key;
 						$model->sched_id = $arr_sched[0];
 						$model->start_date = $startD;
 						$model->end_date = $endD;
-						$model->save();
+#						$model->save();
 			endforeach;
 			$alert = "<div class='alert-success' style='padding:10px'>SUCCESS!<br />Employee Schedule has been Created.</div>";
 			}else{
@@ -153,10 +187,19 @@ class EmployeeScheduleController extends Controller
 		$startDate = null;
 		$endDate = null;
 		$emps_lists = null;
+		$alertTo = null;
+
 		if(isset($_POST['EmployeeSchedule']))
 		{
 			$startDate = $_POST['startDate'];
 			$endDate = $_POST['endDate'];
+			if($startDate == null){ $alertTo .= '*Start Date must not be empty.<br />';}
+			if($endDate == null){ $alertTo .= '*End Date must not be empty.<br />';}
+
+			if($alertTo != null){
+				$alert = '<div class="alert-error" style="padding:10px;">ERROR<br />'.$alertTo.'</div>';
+			}else{
+
 			if(strtotime($startDate) > strtotime($endDate)){
 				$alert = '<div class="alert-error" style="padding:10px;">ERROR<br />Invalid Date</div>';
 			}else{
@@ -166,6 +209,7 @@ class EmployeeScheduleController extends Controller
 														LEFT JOIN  employee_schedule AS es  ON e.id = es.emp_id and es.start_date >= "'.$startDate.'" and es.end_date <= "'.$endDate.'"
 														LEFT JOIN schedule AS s ON es.sched_id = s.id 
 														')->queryAll();
+			}
 			}
 		}else{
 			
@@ -185,6 +229,7 @@ class EmployeeScheduleController extends Controller
 	{
 		$model=new EmployeeSchedule;
 		$alert = '';
+		$alertTo = null;
 
 		$employees = Yii::app()->db->createCommand('
 			SELECT e.id, e.firstname, e.lastname, e.middle_initial, e.position_id, e.department_id, dept.name
@@ -204,6 +249,13 @@ class EmployeeScheduleController extends Controller
 		{
 			$startDate = $_POST['startDate'];
 			$endDate = $_POST['endDate'];
+			if($startDate == null){ $alertTo .= '*Start Date must not be empty.<br />';}
+			if($endDate == null){ $alertTo .= '*End Date must not be empty.<br />';}
+
+			if($alertTo != null){
+				$alert = '<div class="alert-error" style="padding:10px;">ERROR<br />'.$alertTo.'</div>';
+			}else{
+
 			if(strtotime($startDate) > strtotime($endDate)){
 				$alert = '<div class="alert-error" style="padding:10px;">ERROR<br />Invalid Date</div>';
 			}else{
@@ -220,6 +272,7 @@ class EmployeeScheduleController extends Controller
 														)->queryAll();
 
 			}
+		}
 		}else{
 			
 		}
