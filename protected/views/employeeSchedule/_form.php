@@ -49,6 +49,7 @@
 	<div class="row">
 	<?php
 	$sched = Schedule::model()->findAll();
+	$totalsched = 0;
 	$days = array();
 	$varMon = null;
 	$vartue = null;
@@ -86,7 +87,7 @@
 	$varPush = null;
 	$push = array();
 	foreach($output as $key => $current) {
-					$varme = implode('', $current) . '(' . $key . ') ';
+					$varme = implode('', $current) . '-' . $key . ' ';
 					$push[] = $varme;
 	}
 	foreach ($push as $t => $val){
@@ -94,12 +95,13 @@
 
 	}
 	array_push($days, $schedule['id']."| ".$varPush);
+	$totalsched ++;
 	$varPush = null;
 	$output = array();
 	}
-echo "<pre>";
-print_r($days);
-echo "</pre>";
+#echo "<pre>";
+#print_r($days);
+#echo "</pre>";
 
 	echo "Schedule:  ";
 	$this->widget(
@@ -108,7 +110,7 @@ echo "</pre>";
 													'name' => 'sched_sel',
 													'options' => array(
 																	'source' => $days,
-																	'items' => 4,
+																	'items' => $totalsched,
 																	),
 													));
 	?>
