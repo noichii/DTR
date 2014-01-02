@@ -16,10 +16,9 @@
 )); ?>
 
 
-	<p class="note">Fields with <span class="required">*</span> are required.</p>
+<h3 style="text-transform:uppercase;"> <?php foreach ($employees as $e){ echo $e['lastname'],', '.$e['firstname'].' ',$e['middle_initial'].'.'; } ?></h3>
 	<?php echo $alert;?>
 
-<br>
 <?php
 echo $form->datepickerRow($model,'start_date',array(
 												'name'=>'startDate',
@@ -43,12 +42,11 @@ echo $form->datepickerRow($model,'end_date',array(
 																																																							       
 ?>
 
-	<div class="row buttons">
-		<?php echo CHtml::submitButton('Get Schedule'); ?>
-	</div>
+<br><br>
+		<?php echo CHtml::submitButton('Get Schedule',array('class' => 'btn btn-primary')); ?>
 <br>
 	<?php
-	if($emps_lists != null){
+	if($emps_lists != null){ 	#starttable
 		$lists = array();
 		foreach($emps_lists as $e){
 			$lists[] = array(
@@ -66,7 +64,6 @@ echo $form->datepickerRow($model,'end_date',array(
 				'sun' => $e['sun'],
 				);
 		}
-	}
 	?>
 
 <br>
@@ -169,6 +166,7 @@ $io = null;
 		$io = null;
 
 	endforeach; //foreach employees
+	} #endtable
 ?>
 </table>
 
