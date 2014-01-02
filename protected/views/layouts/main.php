@@ -21,6 +21,7 @@
         'items' => array(
           array('label'=>'Schedule','icon'=>'book','url'=>array('/schedule'),'visible'=>!Yii::app()->user->isGuest,'active'=>false),
           array('label'=>'Manpower','icon'=>'group','url'=>array('/checkinout/manpower'),'visible'=>!Yii::app()->user->isGuest,'active'=>false),
+          array('label'=>'Employee Schedule','icon'=>'list','url'=>array('/employeeSchedule/viewsched'),'visible'=>!Yii::app()->user->isGuest,'active'=>false),
 /*
                 array('label'=>Yii::t('app','Home'), 'url'=>array('/site/index')),
                 array('label'=>Yii::t('app','About'), 'url'=>array('/site/page', 'view'=>'about')),
