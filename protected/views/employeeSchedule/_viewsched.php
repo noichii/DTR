@@ -16,7 +16,6 @@
 )); ?>
 
 
-	<p class="note">Fields with <span class="required">*</span> are required.</p>
 	<?php echo $alert;?>
 
 <br>
@@ -42,12 +41,11 @@ echo $form->datepickerRow($model,'end_date',array(
 												'prepend' => '<i class="icon-calendar"></i>'        ));                                            
 																																																							       
 ?>
-
-	<div class="row buttons">
-		<?php echo CHtml::submitButton('Get Schedule'); ?>
-	</div>
 <br>
+		<?php echo CHtml::submitButton('Get Schedule',array('class' => 'btn btn-primary')); ?>
+<br><br>
 	<?php
+	$lists = null;
 	if($emps_lists != null){
 		$lists = array();
 		foreach($emps_lists as $e){
@@ -88,6 +86,7 @@ echo $form->datepickerRow($model,'end_date',array(
 <br>
 <table border=1>
 <?php
+if($lists != null){
 $check = '';
 $currDate ='';
 $currD ='';
@@ -145,6 +144,7 @@ $empname ='';
 		$currD = null;
 
 	endforeach; //foreach employees
+}
 ?>
 		
 </table>
