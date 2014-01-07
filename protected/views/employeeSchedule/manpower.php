@@ -6,14 +6,14 @@ $this->breadcrumbs=array(
 	'Employee Schedules'=>array('index'),
 	'Create',
 );
-
+/*
 $this->menu=array(
-	array('label'=>'Create EmployeeSchedule', 'url'=>array('create')),
-#	array('label'=>'Manage EmployeeSchedule', 'url'=>array('admin')),
-);
+	array('label'=>'List EmployeeSchedule', 'url'=>array('index')),
+	array('label'=>'Manage EmployeeSchedule', 'url'=>array('admin')),
+);*/
 ?>
 
-<?php $this->renderPartial('_empsched', array(
+<?php $this->renderPartial('_manpower', array(
 	'model'=>$model,
 	'emps_lists'=>$emps_lists,
 	'startDate'=>$startDate,
