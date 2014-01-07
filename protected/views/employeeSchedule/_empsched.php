@@ -46,6 +46,7 @@ echo $form->datepickerRow($model,'end_date',array(
 		<?php echo CHtml::submitButton('Get Schedule',array('class' => 'btn btn-primary')); ?>
 <br>
 	<?php
+	$varday = null;
 	if($emps_lists != null){ 	#starttable
 		$lists = array();
 		foreach($emps_lists as $e){
@@ -55,13 +56,13 @@ echo $form->datepickerRow($model,'end_date',array(
 				'fname' => $e['firstname'],
 				'start_date' => $e['start_date'],
 				'end_date' => $e['end_date'],
-				'mon' => $e['mon'],
-				'tue' => $e['tue'],
-				'wed' => $e['wed'],
-				'thur' => $e['thur'],
-				'fri' => $e['fri'],
-				'sat' => $e['sat'],
-				'sun' => $e['sun'],
+				'mon' => ($e['mon'] == null ? $varday='RD' : $varday=$e['mon']), 
+				'tue' => ($e['tue'] == null ? $varday='RD' : $varday=$e['tue']), 
+				'wed' => ($e['wed'] == null ? $varday='RD' : $varday=$e['wed']), 
+				'thur' => ($e['thur'] == null ? $varday='RD' : $varday=$e['thur']), 
+				'fri' => ($e['fri'] == null ? $varday='RD' : $varday=$e['fri']), 
+				'sat' => ($e['sat'] == null ? $varday='RD' : $varday=$e['sat']), 
+				'sun' => ($e['sun'] == null ? $varday='RD' : $varday=$e['sun']), 
 				);
 		}
 	?>
@@ -77,6 +78,9 @@ $currDate ='';
 $currD ='';
 $empname ='';
 $io = null;
+$totalLates = 0;
+$totalUnder = 0;
+
 	if($startDate != '' || $endDate != ''){
 		$chkin = $startDate;
 		$chkout = $endDate;
@@ -84,7 +88,7 @@ $io = null;
 				$currDate .= "<td>".date('M-d',strtotime($chkin))."<br>".date('D',strtotime($chkin))."</td>";
 				$chkin = date('Y-M-d', strtotime('+1 day', strtotime($chkin)));
 			}
-	echo "<tr><td>Name</td>".$currDate."</tr>";
+	echo "<tr><td>Name</td>".$currDate."<td>Total</td></tr>";
 	}
 
 	foreach($employees as $emp):
@@ -132,9 +136,10 @@ $io = null;
 
 			#CHECK IF LATE
 			$checkifLate = (strtotime(substr($checkdate, 0, 5)) - strtotime(substr($checksched, 0, 5))) / 60;
-			if($checksched != null && $checkdate != null){
+			if($checksched != null && $checkdate != null && $checksched != 'RD'){
 				if(strtotime($checkifLate) <= 0){
 					$late .= "<td>".$checkifLate."</td>";
+					$totalLates = $totalLates + $checkifLate;
 				}else{
 					$late .= "<td></td>";
 				}
@@ -144,9 +149,10 @@ $io = null;
 
 			#CHECK IF UNDERTIME
 			$checkifUnder = (strtotime(substr($checksched, 8)) - strtotime(substr($checkdate, 8))) / 60;
-			if($checksched != null && $checkdate != null){
+			if($checksched != null && $checkdate != null && $checksched != 'RD'){
 				if(strtotime($checkifUnder) <= 0){
 					$ut .= "<td>".$checkifUnder."</td>";
+					$totalUnder = $totalUnder + $checkifUnder;
 				}else{
 					$ut .= "<td></td>";
 				}
@@ -158,15 +164,18 @@ $io = null;
 			$checksched ='';
 		}
 	}
-		echo $empname = "<tr class='".$emp['department_id']."'><td>".CHtml::link($emp['firstname'].", ".$emp['lastname'],array('employeeSchedule/empSched','id'=>$emp['id']))."</td>".$currD."</tr>";
-		echo "<tr><td>Checkin - Checkout</td>".$io."</tr>";
-		echo "<tr><td>Late in Minutes</td>".$late."</tr>";
-		echo "<tr><td>Undertime in Minutes</td>".$ut."</tr>";
+		echo $empname = "<tr class='".$emp['department_id']."'><td>".CHtml::link($emp['firstname'].", ".$emp['lastname'],array('employeeSchedule/empSched','id'=>$emp['id']))."</td>".$currD."<td></td></tr>";
+		echo "<tr><td>Checkin - Checkout</td>".$io."<td></td></tr>";
+		echo "<tr><td>Late in Minutes</td>".$late."<td>$totalLates</td></tr>";
+		echo "<tr><td>Undertime in Minutes</td>".$ut."<td>$totalUnder</td></tr>";
 		$currD = null;
 		$io = null;
 
 	endforeach; //foreach employees
 	} #endtable
+	else{
+		echo "No schedule yet.";
+	}
 ?>
 </table>
 
