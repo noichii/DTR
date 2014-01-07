@@ -18,7 +18,6 @@
 
 	<?php echo $alert;?>
 
-<br>
 <?php
 echo $form->datepickerRow($model,'start_date',array(
 												'name'=>'startDate',
@@ -42,11 +41,28 @@ echo $form->datepickerRow($model,'end_date',array(
 																																																							       
 ?>
 <br>
+<?php
+$script = array();
+foreach($department as $dep){
+				$script[] = $dep;
+}
+
+$ctr = 0;
+$varname ="";
+foreach($script as $dept):
+				$ctr++;
+				$varname = "varname".$ctr;
+				$varCheckname = "varname".$ctr."check";
+				echo "<input type='checkbox' id='$varCheckname' onclick='$varname()' checked>";
+				echo " ".$dept['name']."<br>";
+				endforeach;
+				?>
+
+<br>
 		<?php echo CHtml::submitButton('Get Schedule',array('class' => 'btn btn-primary')); ?>
-<br><br>
+<br>
 	<?php
-	$lists = null;
-	if($emps_lists != null){
+	if($emps_lists != null){ 	#starttable
 		$lists = array();
 		foreach($emps_lists as $e){
 			$lists[] = array(
@@ -55,42 +71,34 @@ echo $form->datepickerRow($model,'end_date',array(
 				'fname' => $e['firstname'],
 				'start_date' => $e['start_date'],
 				'end_date' => $e['end_date'],
-				'mon' => $e['mon'],
-				'tue' => $e['tue'],
-				'wed' => $e['wed'],
-				'thur' => $e['thur'],
-				'fri' => $e['fri'],
-				'sat' => $e['sat'],
-				'sun' => $e['sun'],
+				'mon' => ($e['mon'] == null ? $varday='RD' : $varday=$e['mon']),
+				'tue' => ($e['tue'] == null ? $varday='RD' : $varday=$e['tue']),
+				'wed' => ($e['wed'] == null ? $varday='RD' : $varday=$e['wed']),
+				'thur' => ($e['thur'] == null ? $varday='RD' : $varday=$e['thur']),
+				'fri' => ($e['fri'] == null ? $varday='RD' : $varday=$e['fri']),
+				'sat' => ($e['sat'] == null ? $varday='RD' : $varday=$e['sat']),
+				'sun' => ($e['sun'] == null ? $varday='RD' : $varday=$e['sun']),
 				);
 		}
-	}
+#		echo "<pre>";
+#		print_r($lists);
+#		echo "</pre>";
 	?>
 
-<?php 
-	$script = array();
-	foreach($department as $dep){
-		$script[] = $dep;
-	}
-
-	$ctr = 0;
-	$varname ="";
-	foreach($script as $dept):
-		$ctr++;
-		$varname = "varname".$ctr;
-		$varCheckname = "varname".$ctr."check";
-		echo "<input type='checkbox' id='$varCheckname' onclick='$varname()'>";
-		echo " ".$dept['name']."<br>";
-	endforeach;
-?>
 <br>
 <table border=1>
 <?php
-if($lists != null){
+$checkdate = null;
+$late = null;
+$ut = null;
 $check = '';
 $currDate ='';
 $currD ='';
 $empname ='';
+$io = null;
+$totalLates = 0;
+$totalUnder = 0;
+
 	if($startDate != '' || $endDate != ''){
 		$chkin = $startDate;
 		$chkout = $endDate;
@@ -102,7 +110,6 @@ $empname ='';
 	}
 
 	foreach($employees as $emp):
-
 	if($startDate != '' || $endDate != ''){
 		$chkins = $startDate;
 		$chkouts = $endDate;
@@ -134,19 +141,64 @@ $empname ='';
 						}
 					}
 			endforeach; //foreach lists
-			$currD .= "<td>".$checksched."</td>";
-			$checksched ='';
+
+			foreach($checkinout as $inouts):
+				if($inouts['user_id'] == $emp['id']){
+					if(strtotime($chkins) == strtotime($inouts['date'])){
+						$checkdate = date('H:i',strtotime($inouts['checkin'])).' - '.date('H:i',strtotime($inouts['checkout']));
+					}
+				}
+			endforeach;//foreach inout
+			$currD .= "<td>".$checksched."</td>"; //schedule
+			
+			$io .= "<td>".$checkdate."</td>"; //checkin
+
+			#CHECK IF LATE
+			$checkifLate = (strtotime(substr($checkdate, 0, 5)) - strtotime(substr($checksched, 0, 5))) / 60;
+			if($checksched != null && $checkdate != null){
+				if(strtotime($checkifLate) <= 0 && $checksched != 'RD'){
+					$late .= "<td>".$checkifLate."</td>";
+					$totalLates = $totalLates + $checkifLate;
+				}else{
+					$late .= "<td></td>";
+				}
+			}else{
+				$late .= "<td></td>";
+			}
+
+			#CHECK IF UNDERTIME
+			$checkifUnder = (strtotime(substr($checksched, 8)) - strtotime(substr($checkdate, 8))) / 60;
+			if($checksched != null && $checkdate != null){
+				if(strtotime($checkifUnder) <= 0 && $checksched != 'RD'){
+					$ut .= "<td>".$checkifUnder."</td>";
+					$totalUnder = $totalUnder + $checkifUnder;
+				}else{
+					$ut .= "<td></td>";
+				}
+			}else{
+				$ut .= "<td></td>";
+			}
 
 			$chkins = date('Y-m-d', strtotime('+1 day', strtotime($chkins)));
+			$checksched ='';
 		}
 	}
 		echo $empname = "<tr class='".$emp['department_id']."'><td>".CHtml::link($emp['firstname'].", ".$emp['lastname'],array('employeeSchedule/empSched','id'=>$emp['id']))."</td>".$currD."</tr>";
 		$currD = null;
+		$io = null;
+		$late = null;
+		$ut = null;
+		$totalLates = null;
+		$totalUnder = null;
+		$checksched = null;
+		$checkdate = null;
 
 	endforeach; //foreach employees
-}
+	} #endtable
+	else{
+		echo "No schedule yet.";
+	}
 ?>
-		
 </table>
 
 
@@ -162,37 +214,36 @@ $empname ='';
 
 </div><!-- form -->
 
-
 <?php
-	$varname = '';
-	$ctr ='';
-	foreach($script as $deptF){
-		$ctr ++;
-		$varname = "varname".$ctr;
+$varname = '';
+$ctr ='';
+foreach($script as $deptF){
+				$ctr ++;
+				$varname = "varname".$ctr;
+				?>
+								<script>
+								$('.<?php echo $deptF['id']?>').show();
+				</script>
+								<?php
+}
 ?>
-	<script>
-		$('.<?php echo $deptF['id']?>').hide();
-	</script>
 <?php
-	}
-?>
-<?php
-	$varname = '';
-	$ctr ='';
-	foreach($script as $deptF){
-		$ctr ++;
-		$varname = "varname".$ctr;
-		$varCheckname = "varname".$ctr."check";
-?>
-	<script>
-	function <?php echo $varname.'()'?>{
-		if(document.getElementById('<?php echo $varCheckname?>').checked){
-			$('.<?php echo $deptF["id"]?>').show();
-			}else{
-			$('.<?php echo $deptF["id"]?>').hide();
-			}
-	}
-	</script>
-<?php
-	}
-?>
+$varname = '';
+$ctr ='';
+foreach($script as $deptF){
+				$ctr ++;
+				$varname = "varname".$ctr;
+				$varCheckname = "varname".$ctr."check";
+				?>
+								<script>
+								function <?php echo $varname.'()'?>{
+												if(document.getElementById('<?php echo $varCheckname?>').checked){
+																$('.<?php echo $deptF["id"]?>').show();
+												}else{
+																$('.<?php echo $deptF["id"]?>').hide();
+												}
+								}
+				</script>
+				<?php
+				  }
+					?>
