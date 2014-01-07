@@ -32,7 +32,7 @@ class EmployeeScheduleController extends Controller
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('create','update','viewsched','empsched'),
+				'actions'=>array('create','update','viewsched','empsched','manpower'),
 				'users'=>array('@'),
 			),
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -74,15 +74,21 @@ class EmployeeScheduleController extends Controller
 				);
 		}
 		
-
+		$alertwS = null;
+		$alertwoS = null;
+		$empschedId = null;
 		$employee = Employee::model()->findAll();
     $emp = array();
 		    foreach($employee as $emps){
 					array_push($emp, $emps['id'].". ".$emps['lastname']." ".$emps['firstname']);
 				}
 		
+		$confsched = null;
 		$alert = '';
 		$alertTo = null;
+		$dayswithsched = null;
+		$dayswithoutsched = null;
+
 		if(isset($_POST['EmployeeSchedule']))
 		{
 
@@ -121,40 +127,63 @@ class EmployeeScheduleController extends Controller
 						}
 						$output[$i][] = trim($name);
 			} else{
-						$saveit++;
+						$saveit++; //checkif exist
 						$notExistName .= $bit.",";
 			}
 		endforeach;
+
 		if($saveit == 0){
 			foreach($output as $key => $value):
-				while(strtotime($startD) <= strtotime($endD)){
-				/*
-				foreach($emp_s as $e):
-					echo	$e['start_date']."x";
-					echo $startD;
-					if(strval($key) == $e['emp_id']){
-					#	if(strtotime($e['start_date']) <= strtotime($startD) && strtotime($e['end_date']) >= strtotime($startD))){
-					echo $key."--------".$e['emp_id'];
-						echo "already exist";
-						break;
-					}
-					else{
-						echo "ok to";
-						break;
-					}
-				endforeach;
-				**/
-					$startD = date('Y-m-d', strtotime('+1 day', strtotime($startD)));
-				}
+				$checkOutput = Yii::app()->db->createCommand(/*'
+						SELECT es.sched_id, es.emp_id, es.start_date, es.end_date, s.mon, s.tue, s.wed, s.thur, s.fri, s.sat, s.sun
+						FROM employee_schedule AS es
+						INNER JOIN schedule AS s ON s.id = es.sched_id
+						WHERE emp_id=\''.$key.'\' AND (start_date <= \''.$startD.'\' and end_date >= \''.$endD.'\')
+						'*/
+						'SELECT es.sched_id, es.emp_id, es.start_date, es.end_date, s.mon, s.tue, s.wed, s.thur, s.fri, s.sat, s.sun 
+						FROM employee_schedule AS es 
+						INNER JOIN schedule AS s ON s.id = es.sched_id 
+						WHERE emp_id=\''.$key.'\' AND (start_date <= \''.$startD.'\' and end_date >= \''.$startD.'\' or end_date <= \''.$endD.'\')
+						')->queryAll();
 
-						$model = new EmployeeSchedule;
-						$model->emp_id = $key;
-						$model->sched_id = $arr_sched[0];
-						$model->start_date = $startD;
-						$model->end_date = $endD;
-#						$model->save();
+						$day = $startD;
+						while($day <= $endD){
+							foreach($checkOutput as $cA){
+								if($cA['start_date'] <= $day && $cA['end_date'] >= $day){
+									//days with schedule
+									$dayswithsched .= $day."<br>";
+								}else{
+									//days without schedule
+									$dayswithoutsched .= $day."<br>";
+								}
+							}
+								$day = date('Y-m-d', strtotime('+1 day', strtotime($day)));
+						}
+								if($dayswithsched == null){
+									//the employee schedule has been save	
+									$model = new EmployeeSchedule;
+									$model->emp_id = $key;
+									$model->sched_id = $arr_sched[0];
+									$model->start_date = $startD;
+									$model->end_date = $endD;
+									$model->save();
+
+									$emp_key = Employee::model()->findByPk($key);
+									$alertwS .= $emp_key['lastname'].', '.$emp_key['firstname'].' has been saved <br>';
+								}else{
+									//cant be save
+									$emp_key = Employee::model()->findByPk($key);
+									$alertwoS .= $emp_key['lastname'].', '.$emp_key['firstname'].'  can\'t be saved <br> Conflict Schedule:<br>'.$dayswithsched;
+								}
+								$confsched .= $dayswithsched;
+								$dayswithsched = null;
+								$dayswithoutsched = null;
+
 			endforeach;
-			$alert = "<div class='alert-success' style='padding:10px'>SUCCESS!<br />Employee Schedule has been Created.</div>";
+			if($alertwS != null){
+				$alert .= "<div class='alert-success' style='padding:10px'>SUCCESS!<br />$alertwS</div>";}
+			if($alertwoS != null){
+				$alert .= "<div class='alert-error' style='padding:10px;'>ERROR<br />$alertwoS</div>";}
 			}else{
 				$alert = '<div class="alert-error" style="padding:10px;">ERROR<br />'.$notExistName.' does not Exist. Please try again.</div>';
 			}
@@ -172,6 +201,68 @@ class EmployeeScheduleController extends Controller
 	{
 		$model=new EmployeeSchedule;
 		$alert = '';
+		$alertTo = null;
+
+		$employees = Yii::app()->db->createCommand('
+			SELECT e.id, e.firstname, e.lastname, e.middle_initial, e.position_id, e.department_id, dept.name
+			FROM employee AS e
+			LEFT JOIN department AS dept ON e.department_id = dept.id
+			'
+			)->queryAll();
+
+		$department = Department::model()->findAll();	//Department
+		
+
+		$checkinout = null;
+		$startDate = null;
+		$endDate = null;
+		$emps_lists = null;
+		if(isset($_POST['EmployeeSchedule']))
+		{
+			$startDate = $_POST['startDate'];
+			$endDate = $_POST['endDate'];
+			if($startDate == null){ $alertTo .= '*Start Date must not be empty.<br />';}
+			if($endDate == null){ $alertTo .= '*End Date must not be empty.<br />';}
+
+			if($alertTo != null){
+				$alert = '<div class="alert-error" style="padding:10px;">ERROR<br />'.$alertTo.'</div>';
+			}else{
+
+			if(strtotime($startDate) > strtotime($endDate)){
+				$alert = '<div class="alert-error" style="padding:10px;">ERROR<br />Invalid Date</div>';
+			}else{
+						$checkinout = Yii::app()->db->createCommand('
+							SELECT * FROM `checkinout` where (date >= "'.$startDate.'" && date <= "'.$endDate.'")'
+							)->queryAll();  //Checkin.out
+
+						$emps_lists=Yii::app()->db->createCommand('
+														SELECT e.id, e.firstname, e.lastname, es.emp_id, es.start_date, es.end_date, s.mon, s.tue, s.wed, s.thur, s.fri, s.sat, s.sun 
+														FROM employee AS e 
+														LEFT JOIN  employee_schedule AS es  ON e.id = es.emp_id
+														LEFT JOIN schedule AS s ON es.sched_id = s.id 
+														WHERE (start_date <= \''.$startDate.'\''.' or start_date <= \''.$endDate.'\')'
+														)->queryAll();
+
+			}
+		}
+		}else{
+			
+		}
+		$this->render('viewsched',array(
+			'model'=>$model,
+			'emps_lists'=>$emps_lists,
+			'startDate' => $startDate,
+			'endDate' => $endDate,
+			'employees' => $employees,
+			'alert'=>$alert,
+			'department'=>$department,
+			'checkinout'=>$checkinout,
+		));
+	}
+
+/*	---------------------
+		$model=new EmployeeSchedule;
+		$alert = '';
 
 		$employees = Yii::app()->db->createCommand('
 			SELECT e.id, e.firstname, e.lastname, e.middle_initial, e.position_id, e.department_id, dept.name
@@ -181,7 +272,6 @@ class EmployeeScheduleController extends Controller
 
 		// Uncomment the following line if AJAX validation is needed
 		// $this->performAjaxValidation($model);
-		#$emps_lists = Employee::model()->findAll();
 
 		$department = Department::model()->findAll();
 		$startDate = null;
@@ -224,7 +314,7 @@ class EmployeeScheduleController extends Controller
 			'department'=>$department,
 		));
 	}
-
+*/
 	public function actionempsched($id)
 	{
 		$model=new EmployeeSchedule;
@@ -266,9 +356,9 @@ class EmployeeScheduleController extends Controller
 						$emps_lists=Yii::app()->db->createCommand('
 														SELECT e.id, e.firstname, e.lastname, es.emp_id, es.start_date, es.end_date, s.mon, s.tue, s.wed, s.thur, s.fri, s.sat, s.sun 
 														FROM employee AS e 
-														LEFT JOIN  employee_schedule AS es  ON e.id = es.emp_id and es.start_date >= "'.$startDate.'" and es.end_date <= "'.$endDate.'"
+														LEFT JOIN  employee_schedule AS es  ON e.id = es.emp_id
 														LEFT JOIN schedule AS s ON es.sched_id = s.id 
-														WHERE e.id ='.$id
+														WHERE e.id ='.$id.' and (start_date <= \''.$startDate.'\''.' or start_date <= \''.$endDate.'\')'
 														)->queryAll();
 
 			}
@@ -277,6 +367,69 @@ class EmployeeScheduleController extends Controller
 			
 		}
 		$this->render('empsched',array(
+			'model'=>$model,
+			'emps_lists'=>$emps_lists,
+			'startDate' => $startDate,
+			'endDate' => $endDate,
+			'employees' => $employees,
+			'alert'=>$alert,
+			'department'=>$department,
+			'checkinout'=>$checkinout,
+		));
+	}
+
+	public function actionmanpower()
+	{
+		$model=new EmployeeSchedule;
+		$alert = '';
+		$alertTo = null;
+
+		$employees = Yii::app()->db->createCommand('
+			SELECT e.id, e.firstname, e.lastname, e.middle_initial, e.position_id, e.department_id, dept.name
+			FROM employee AS e
+			LEFT JOIN department AS dept ON e.department_id = dept.id
+			'
+			)->queryAll();
+
+		$department = Department::model()->findAll();	//Department
+		
+
+		$checkinout = null;
+		$startDate = null;
+		$endDate = null;
+		$emps_lists = null;
+		if(isset($_POST['EmployeeSchedule']))
+		{
+			$startDate = $_POST['startDate'];
+			$endDate = $_POST['endDate'];
+			if($startDate == null){ $alertTo .= '*Start Date must not be empty.<br />';}
+			if($endDate == null){ $alertTo .= '*End Date must not be empty.<br />';}
+
+			if($alertTo != null){
+				$alert = '<div class="alert-error" style="padding:10px;">ERROR<br />'.$alertTo.'</div>';
+			}else{
+
+			if(strtotime($startDate) > strtotime($endDate)){
+				$alert = '<div class="alert-error" style="padding:10px;">ERROR<br />Invalid Date</div>';
+			}else{
+						$checkinout = Yii::app()->db->createCommand('
+							SELECT * FROM `checkinout` where (date >= "'.$startDate.'" && date <= "'.$endDate.'")'
+							)->queryAll();  //Checkin.out
+
+						$emps_lists=Yii::app()->db->createCommand('
+														SELECT e.id, e.firstname, e.lastname, es.emp_id, es.start_date, es.end_date, s.mon, s.tue, s.wed, s.thur, s.fri, s.sat, s.sun 
+														FROM employee AS e 
+														LEFT JOIN  employee_schedule AS es  ON e.id = es.emp_id
+														LEFT JOIN schedule AS s ON es.sched_id = s.id 
+														WHERE (start_date <= \''.$startDate.'\''.' or start_date <= \''.$endDate.'\')'
+														)->queryAll();
+
+			}
+		}
+		}else{
+			
+		}
+		$this->render('manpower',array(
 			'model'=>$model,
 			'emps_lists'=>$emps_lists,
 			'startDate' => $startDate,
@@ -403,3 +556,5 @@ class EmployeeScheduleController extends Controller
 					$this->render('testview',array('model'=>$model));
 	}
 }
+
+
