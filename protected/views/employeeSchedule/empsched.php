@@ -7,10 +7,10 @@ $this->breadcrumbs=array(
 	'Create',
 );
 
-$this->menu=array(
+/*$this->menu=array(
 	array('label'=>'Create EmployeeSchedule', 'url'=>array('create')),
-#	array('label'=>'Manage EmployeeSchedule', 'url'=>array('admin')),
-);
+	array('label'=>'Manage EmployeeSchedule', 'url'=>array('admin')),
+);*/
 ?>
 
 <?php $this->renderPartial('_empsched', array(
