@@ -62,7 +62,15 @@ $this->widget(
 																array(
 																				'class' => 'bootstrap.widgets.TbMenu',
 																				'items' => array(
-																								array('label'=>'Schedule','icon'=>'book','url'=>array('/schedule'),'visible'=>!Yii::app()->user->isGuest,'active'=>false),
+																								array(
+																												'label' => 'Schedule',
+																												'icon' => 'book',
+																												'items' => array(
+																																array('label' => 'View All Schedule', 'url' => array('/schedule')),
+																																array('label' => 'Create New', 'url' => array('/schedule/create')),
+																																),
+																																'visible'=>!Yii::app()->user->isGuest,'active'=>false,
+																										 ),
 																								array('label'=>'Manpower','icon'=>'group','url'=>array('/employeeSchedule/manpower'),'visible'=>!Yii::app()->user->isGuest,'active'=>false),
 																								array(
 																												'label' => 'Employee Schedule',
@@ -70,13 +78,25 @@ $this->widget(
 																												'items' => array(
 																																array('label' => 'View All Schedule', 'url' => array('/employeeSchedule/viewsched')),
 																																array('label' => 'Create New', 'url' => array('/employeeSchedule/create')),
-																																)
+																																),
+																																'visible'=>!Yii::app()->user->isGuest,'active'=>false,
 																										 ),
 																								)
-																		 )
+																		 ),
+																array(
+																				'class' => 'bootstrap.widgets.TbMenu',
+																				'htmlOptions' => array('class' => 'pull-right'),
+																				'encodeLabel'=>false,
+																				'items' => array(
+																								'...',
+																								array('label'=>Yii::t('app','Rights'), 'url'=>array('/rights'),'visible'=>Yii::app()->user->checkAccess('Admin')),
+																								array('label'=>'','icon'=>'off','url'=>array('/site/logout'),'visible'=>!Yii::app()->user->isGuest,'active'=>false),
+																								array('label'=>'Login','icon'=>'off','url'=>array('/user/login'),'visible'=>Yii::app()->user->isGuest,'active'=>false),
+																								)
+																		 ),
 																)
-										 )
-								);
+																)
+																);
 ?>
 <div class="container-fluid" id="page">
   <center>
