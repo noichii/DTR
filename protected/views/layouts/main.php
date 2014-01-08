@@ -12,7 +12,7 @@
 <?php
 #$user = (!Yii::app()->user->isGuest) ? User::model()->findByPk(Yii::app()->user->id) : "";
 #$name = $user!="" ? $user->profile->firstname : "";
-  $this->widget('bootstrap.widgets.TbNavbar', array(
+/*  $this->widget('bootstrap.widgets.TbNavbar', array(
     'brand' => 'Imperium',
     #'brandUrl'=>array('/otform/index'),
     'fixed'=>'',
@@ -34,7 +34,7 @@
 */
   #        array('label'=>'O.T. Dashboard','icon'=>'briefcase', 'url'=>array('/otform/index'), 'visible'=>!Yii::app()->user->isGuest,'active'=>false),
   #        array('label'=>'Leave Dashboard','icon'=>'book', 'url'=>array('/leave/index'), 'visible'=>!Yii::app()->user->isGuest,'active'=>false),
-        )
+ /*       )
       ),
       array(
         'class' => 'bootstrap.widgets.TbMenu',
@@ -51,8 +51,32 @@
       ),
    )
  ));
-
-
+*/
+$this->widget(
+								'bootstrap.widgets.TbNavbar',
+								array(
+												'type' => 'inverse',
+												'brand' => 'IMPERIUM',
+												'fixed' => false,
+												'items' => array(
+																array(
+																				'class' => 'bootstrap.widgets.TbMenu',
+																				'items' => array(
+																								array('label'=>'Schedule','icon'=>'book','url'=>array('/schedule'),'visible'=>!Yii::app()->user->isGuest,'active'=>false),
+																								array('label'=>'Manpower','icon'=>'group','url'=>array('/employeeSchedule/manpower'),'visible'=>!Yii::app()->user->isGuest,'active'=>false),
+																								array(
+																												'label' => 'Employee Schedule',
+																												'icon' => 'list',
+																												'items' => array(
+																																array('label' => 'View All Schedule', 'url' => array('/employeeSchedule/viewsched')),
+																																array('label' => 'Create New', 'url' => array('/employeeSchedule/create')),
+																																)
+																										 ),
+																								)
+																		 )
+																)
+										 )
+								);
 ?>
 <div class="container-fluid" id="page">
   <center>
