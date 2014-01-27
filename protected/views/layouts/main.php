@@ -66,17 +66,26 @@ $this->widget(
 																												'label' => 'Schedule',
 																												'icon' => 'book',
 																												'items' => array(
-																																array('label' => 'View All Schedule', 'url' => array('/schedule')),
+																																array('label' => 'View All Schedule', 'url' => array('/schedule/admin')),
 																																array('label' => 'Create New', 'url' => array('/schedule/create')),
 																																),
 																																'visible'=>!Yii::app()->user->isGuest,'active'=>false,
 																										 ),
-																								array('label'=>'Manpower','icon'=>'group','url'=>array('/employeeSchedule/manpower'),'visible'=>!Yii::app()->user->isGuest,'active'=>false),
+																								array(
+																												'label' => 'Upload',
+																												'icon' => 'cloud-upload',
+																												'items' => array(
+																																array('label' => 'Upload Logs', 'url' => array('/checkinout/create')),
+																																#array('label' => 'Upload Schedule', 'url' => array('/employeeSchedule/upload')),
+																																),
+																																'visible'=>!Yii::app()->user->isGuest,'active'=>false,
+																										 ),
+																								array('label'=>'Report','icon'=>'file','url'=>array('/employeeSchedule/report'),'visible'=>!Yii::app()->user->isGuest,'active'=>false),
 																								array(
 																												'label' => 'Employee Schedule',
 																												'icon' => 'list',
 																												'items' => array(
-																																array('label' => 'View All Schedule', 'url' => array('/employeeSchedule/viewsched')),
+																																array('label' => 'View All Schedule', 'url' => array('/employeeSchedule/viewsched','startDate'=>null,'endDate'=>null)),
 																																array('label' => 'Create New', 'url' => array('/employeeSchedule/create')),
 																																),
 																																'visible'=>!Yii::app()->user->isGuest,'active'=>false,

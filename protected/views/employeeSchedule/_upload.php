@@ -1,4 +1,4 @@
-<?php
+<?php 
 	if($alert != null){
 		if($symbol == 'error'){
 		?>

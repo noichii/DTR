@@ -65,10 +65,36 @@ echo $form->datepickerRow($model,'end_date',array(
 				'sun' => ($e['sun'] == null ? $varday='RD' : $varday=$e['sun']), 
 				);
 		}
+	$ottime = array();
+	if($checkot != null){
+		foreach($checkot as $ott):
+			$ottime[] = array(
+				'id' => $ott['id'],
+				'employee_id' => $ott['employee_id'],
+				'start_time' => $ott['start_time'],
+				'end_time' => $ott['end_time'],
+				'date' => $ott['date'],
+				'status' => $ott['status'],
+			);
+		endforeach;
+	}
+
+	$leavetime = array();
+	if($leave != null){
+		foreach($leave as $lt):
+			$leavetime[] = array(
+				'id' => $lt['id'],
+				'employee_id' => $lt['employee_id'],
+				'start_date' => $lt['start_date'],
+				'end_date' => $lt['end_date'],
+				'name' => $lt['name'],
+			);
+		endforeach;
+	}
 	?>
 
 <br>
-<table border=1>
+<table class="table table-bordered">
 <?php
 $checkdate = null;
 $late = null;
@@ -78,8 +104,17 @@ $currDate ='';
 $currD ='';
 $empname ='';
 $io = null;
-$totalLates = 0;
-$totalUnder = 0;
+$totalLates = null;
+$totalUnder = null;
+$ot = null;
+$totalOT = null;
+$yesot = null;
+$yesio = null;
+$yesleave = null;
+$leave = null;
+$daysleave = null;
+$daysabsent = null;
+
 
 	if($startDate != '' || $endDate != ''){
 		$chkin = $startDate;
@@ -88,7 +123,14 @@ $totalUnder = 0;
 				$currDate .= "<td>".date('M-d',strtotime($chkin))."<br>".date('D',strtotime($chkin))."</td>";
 				$chkin = date('Y-M-d', strtotime('+1 day', strtotime($chkin)));
 			}
-	echo "<tr><td>Name</td>".$currDate."<td>Total</td></tr>";
+	echo "<tr><td>Name</td>".$currDate."
+				<td>Total</td>
+				<td>Lates</td>
+				<td>UnderTime</td>
+				<td>OT</td>
+				<td>Leave</td>
+				<td>A</td>
+				</tr>";
 	}
 
 	foreach($employees as $emp):
@@ -128,16 +170,52 @@ $totalUnder = 0;
 			foreach($checkinout as $inouts):
 				if(strtotime($chkins) == strtotime($inouts['date'])){
 					$checkdate = date('H:i',strtotime($inouts['checkin'])).' - '.date('H:i',strtotime($inouts['checkout']));
+					$yesio = $checkdate;
 				}
 			endforeach;//foreach inout
-			$currD .= "<td>".$checksched."</td>"; //schedule
 
-			$io .= "<td>".$checkdate."</td>"; //checkin
+			$cur = $checksched;
+			if($checksched == null){
+				$cur = "no schedule";
+			}else{
+				$cur = $checksched;
+			}
+
+			$absent = null;
+			$currD .= "<td>".$cur."</td>"; //schedule
+			if($yesio != null){
+				$io .= "<td>".$yesio."</td>"; //checkin
+			}else{
+				
+				#CHECK IF ABSENT
+				if($checksched != 'RD'){
+					$absent = "Absent";
+					$daysabsent ++;
+				}else{
+					$absent = "";
+				}
+
+				#CHECK IF LEAVE
+				if($leavetime != null){
+					foreach($leavetime as $lv):
+						if($chkins >= $lv['start_date'] && $chkins <= $lv['end_date']){
+							$yesleave .= $lv['name'];
+							$daysleave ++;
+							$absent = "";
+						}else{
+							$yesleave .= "";
+						}
+					endforeach;
+			}
+				$io .= "<td> $absent"."$yesleave </td>";
+				$yesleave = null;
+				
+			}
 
 			#CHECK IF LATE
-			$checkifLate = (strtotime(substr($checkdate, 0, 5)) - strtotime(substr($checksched, 0, 5))) / 60;
-			if($checksched != null && $checkdate != null && $checksched != 'RD'){
-				if(strtotime($checkifLate) <= 0){
+			$checkifLate = (strtotime(substr($yesio, 0, 5)) - strtotime(substr($checksched, 0, 5))) / 60;
+			if($checksched != null && $yesio != null && $checksched != 'RD'){
+				if($checkifLate > 0){
 					$late .= "<td>".$checkifLate."</td>";
 					$totalLates = $totalLates + $checkifLate;
 				}else{
@@ -148,9 +226,9 @@ $totalUnder = 0;
 			}
 
 			#CHECK IF UNDERTIME
-			$checkifUnder = (strtotime(substr($checksched, 8)) - strtotime(substr($checkdate, 8))) / 60;
-			if($checksched != null && $checkdate != null && $checksched != 'RD'){
-				if(strtotime($checkifUnder) <= 0){
+			$checkifUnder = (strtotime(substr($checksched, 8)) - strtotime(substr($yesio, 8))) / 60;
+			if($checksched != null && $yesio != null && $checksched != 'RD'){
+				if($checkifUnder > 0){
 					$ut .= "<td>".$checkifUnder."</td>";
 					$totalUnder = $totalUnder + $checkifUnder;
 				}else{
@@ -160,16 +238,62 @@ $totalUnder = 0;
 				$ut .= "<td></td>";
 			}
 
+			#CHECK IF OT
+			$checkifOT = (strtotime(substr($yesio, 8)) - strtotime(substr($checksched, 8))) / 60;
+
+			if($checksched != null && $yesio != null && $checksched != 'RD'){
+				if($checkifOT > 0){
+
+			foreach($ottime as $oTt):
+				if($oTt['date'] == $chkins){
+					$yesot = $checkifOT;
+				}
+			endforeach;
+					$ot .= "<td>$yesot</td>";
+					if($yesot != null){
+						$totalOT = $totalOT + $checkifOT."<br>";
+					}
+					$yesot = null;
+
+				}else{
+					$ot .= "<td></td>";
+				}
+			}else{
+				$ot .= "<td></td>";
+			}
+
+
+			$yesio = null;
 			$chkins = date('Y-m-d', strtotime('+1 day', strtotime($chkins)));
 			$checksched ='';
 		}
 	}
-		echo $empname = "<tr class='".$emp['department_id']."'><td>".CHtml::link($emp['firstname'].", ".$emp['lastname'],array('employeeSchedule/empSched','id'=>$emp['id']))."</td>".$currD."<td></td></tr>";
+		echo $empname = "<tr class='".$emp['department_id']."'>
+											<td>".CHtml::link($emp['firstname'].", ".$emp['lastname'],array('employeeSchedule/empSched','id'=>$emp['id']))."</td>"
+											.$currD.
+											"<td></td>
+											<td>$totalLates</td>
+											<td>$totalUnder</td>
+											<td>$totalOT</td>
+											<td>$daysleave</td>
+											<td>".($daysabsent-$daysleave)."</td>
+										</tr>";
 		echo "<tr><td>Checkin - Checkout</td>".$io."<td></td></tr>";
 		echo "<tr><td>Late in Minutes</td>".$late."<td>$totalLates</td></tr>";
 		echo "<tr><td>Undertime in Minutes</td>".$ut."<td>$totalUnder</td></tr>";
+		echo "<tr><td>OT in Minutes</td>".$ot."<td>$totalOT</td></tr>";
+
+		$daysabsent = 0;
 		$currD = null;
 		$io = null;
+		$checkifLate = null;
+		$checkifUnder = null;
+		$late = null;
+		$ut = null;
+		$totalUnder = null;
+		$totalLates = null;
+		$totalOT = null;
+		$checkifOT = null;
 
 	endforeach; //foreach employees
 	} #endtable

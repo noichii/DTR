@@ -13,15 +13,6 @@ $this->menu=array(
 );*/
 ?>
 
-<?php $this->renderPartial('_manpower', array(
+<?php $this->renderPartial('_addfield', array(
 	'model'=>$model,
-	'emps_lists'=>$emps_lists,
-	'startDate'=>$startDate,
-	'endDate'=>$endDate,
-	'employees'=>$employees,
-	'alert'=>$alert,
-	'department'=>$department,
-	'checkinout'=>$checkinout,
-	'checkot' => $checkot,
-	'leave' => $leave,
 	)); ?>

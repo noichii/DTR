@@ -1,3 +1,4 @@
+
 <?php
 /* @var $this EmployeeScheduleController */
 /* @var $model EmployeeSchedule */
@@ -65,18 +66,6 @@ foreach($script as $dept):
 	if($emps_lists != null){ 	#starttable
 		$lists = array();
 		foreach($emps_lists as $e){
-			if($e['mon'] == null && $e['tue'] == null && $e['wed'] == null && $e['thur'] == null && $e['fri'] == null && $e['sat'] == null && $e['sun'] == null){
-			#if($e['status'] == 0){
-				$e['mon']='ERROR IN SCHEDULE';
-				$e['tue']='ERROR IN SCHEDULE';
-				$e['wed']='ERROR IN SCHEDULE';
-				$e['thur']='ERROR IN SCHEDULE';
-				$e['wed']='ERROR IN SCHEDULE';
-				$e['fri']='ERROR IN SCHEDULE';
-				$e['sat']='ERROR IN SCHEDULE';
-				$e['sun']='ERROR IN SCHEDULE';
-			}
-
 			$lists[] = array(
 				'id' => $e['id'],
 				'lname' => $e['lastname'],
@@ -90,14 +79,40 @@ foreach($script as $dept):
 				'fri' => ($e['fri'] == null ? $varday='RD' : $varday=$e['fri']),
 				'sat' => ($e['sat'] == null ? $varday='RD' : $varday=$e['sat']),
 				'sun' => ($e['sun'] == null ? $varday='RD' : $varday=$e['sun']),
-				'es_id' => $e['es_id'],				
-				'conflict' => $e['conflict'],				
 				);
 		}
+
+		$ottime = array();
+		if($checkot != null){
+						foreach($checkot as $ott):
+										$ottime[] = array(
+																		'id' => $ott['id'],
+																		'employee_id' => $ott['employee_id'],
+																		'start_time' => $ott['start_time'],
+																		'end_time' => $ott['end_time'],
+																		'date' => $ott['date'],
+																		'status' => $ott['status'],
+																		);
+						endforeach;
+		}
+
+		$leavetime = array();
+		if($leave != null){
+						foreach($leave as $lt):
+							$leavetime[] = array(
+								'id' => $lt['id'],
+								'employee_id' => $lt['employee_id'],
+								'start_date' => $lt['start_date'],
+								'end_date' => $lt['end_date'],
+								'name' => $lt['name'],
+							);
+						endforeach;
+		}
+
 	?>
 
 <br>
-<table class="table table-hover">
+<table class="table table-bordered">
 <?php
 $checkdate = null;
 $late = null;
@@ -107,10 +122,21 @@ $currDate ='';
 $currD ='';
 $empname ='';
 $io = null;
-$totalLates = 0;
-$totalUnder = 0;
-$thisid = null;
-$schedfill = 0;
+$totalLates = null;
+$totalUnder = null;
+$ot = null;
+$totalOT = null;
+$yesot = null;
+$yesio = null;
+$yesleave = null;
+$leave = null;
+$daysleave = null;
+$totalAllLates = null;
+$totalAllUnder = null;
+$totalAllOver = null;
+$totalAllLeave = null;
+$daysabsent = null;
+$totalAllAbsent = null;
 
 	if($startDate != '' || $endDate != ''){
 		$chkin = $startDate;
@@ -119,7 +145,13 @@ $schedfill = 0;
 				$currDate .= "<td>".date('M-d',strtotime($chkin))."<br>".date('D',strtotime($chkin))."</td>";
 				$chkin = date('Y-M-d', strtotime('+1 day', strtotime($chkin)));
 			}
-	echo "<tr><td>Name</td>".$currDate."</tr>";
+	echo "<tr><td>Name</td>".$currDate."<td style='border-top:1px solid white;'></td>
+		<td>Lates</td>
+		<td>UnderTime</td>
+		<td>OT</td>
+		<td>Leave</td>
+		<td>Absent</td>
+		</tr>";
 	}
 
 	foreach($employees as $emp):
@@ -131,7 +163,6 @@ $schedfill = 0;
 
 			foreach($lists as $key => $value):
 				if($value['id'] == $emp['id']){
-						$thisid = $value['es_id'];
 						if(strtotime($value['start_date']) <= strtotime($chkins) && strtotime($value['end_date']) >= strtotime($chkins)){
 							$day = date('D',strtotime($chkins));	
 							if($day == 'Mon'){
@@ -155,35 +186,62 @@ $schedfill = 0;
 						}
 					}
 			endforeach; //foreach lists
-
 			foreach($checkinout as $inouts):
 				if($inouts['user_id'] == $emp['id']){
 					if(strtotime($chkins) == strtotime($inouts['date'])){
 						$checkdate = date('H:i',strtotime($inouts['checkin'])).' - '.date('H:i',strtotime($inouts['checkout']));
+						$yesio = $checkdate;
 					}
 				}
 			endforeach;//foreach inout
+
 			$cur = $checksched;
-			if($checksched == null){
-				$cur = "no schedule";
-			}else{
-				$cur = $checksched;
-			}
+
 			if(strlen($cur) > 13){
 				$cur = substr($cur, 13);
 			}
-			if($cur == 'ERROR IN SCHEDULE'){
-				$currD .= "<td><input type='button' onclick='errsched(".$emp['id'].",".$thisid.")' value='".$cur."' /></td>"; //schedule
+
+			if($checksched == null){
+				$cur = "no schedule";
+				$yesio = 'noschedule';
 			}else{
-				$currD .= "<td>".$cur."</td>"; //schedule
+				$cur = $checksched;
 			}
 
-			$io .= "<td>".$checkdate."</td>"; //checkin
+			$absent = null;
+			if($yesio == null){
+				if($cur != "no schedule" && $cur!= 'RD'){
+					$absent = "Absent";
+					$daysabsent ++;
+				}
+				else{
+					$absent = "";
+				}
+				#CHECK IF LEAVE
+				if($leavetime != null){
+							foreach($leavetime as $lv):
+								if($lv['employee_id'] == $emp['id']){
+											if($chkins >= $lv['start_date'] && $chkins <= $lv['end_date']){
+															$yesleave .= $lv['name'];
+															$absent = "";
+															$daysleave ++;
+											}else{
+															$yesleave .= "";
+											}
+								}
+								$yesio = $absent.$yesleave;
+							endforeach;
+							$leave .= "<td> $yesleave </td>";
+				}
+			}
+			$currD .= "<td>".$cur."</td>"; //schedule
+
+			$io .= "<td>".$yesio."</td>"; //checkin
 
 			#CHECK IF LATE
-			$checkifLate = (strtotime(substr($checkdate, 0, 5)) - strtotime(substr($checksched, 0, 5))) / 60;
-			if($checksched != null && $checkdate != null){
-				if(strtotime($checkifLate) <= 0 && $checksched != 'RD'){
+			$checkifLate = (strtotime(substr($yesio, 0, 5)) - strtotime(substr($checksched, 0, 5))) / 60;
+			if($checksched != null && $yesio != null){
+				if($checkifLate > 0 && $checksched != 'RD'){
 					$late .= "<td>".$checkifLate."</td>";
 					$totalLates = $totalLates + $checkifLate;
 				}else{
@@ -194,9 +252,9 @@ $schedfill = 0;
 			}
 
 			#CHECK IF UNDERTIME
-			$checkifUnder = (strtotime(substr($checksched, 8)) - strtotime(substr($checkdate, 8))) / 60;
-			if($checksched != null && $checkdate != null){
-				if(strtotime($checkifUnder) <= 0 && $checksched != 'RD'){
+			$checkifUnder = (strtotime(substr($checksched, 8)) - strtotime(substr($yesio, 8))) / 60;
+			if($checksched != null && $yesio != null && $checksched != 'RD' && $absent == null && $yesleave == null){
+				if($checkifUnder > 0){
 					$ut .= "<td>".$checkifUnder."</td>";
 					$totalUnder = $totalUnder + $checkifUnder;
 				}else{
@@ -206,24 +264,62 @@ $schedfill = 0;
 				$ut .= "<td></td>";
 			}
 
+			$yesleave = null;
+
+			#CHECK IF OT
+			$checkifOT = (strtotime(substr($yesio, 8)) - strtotime(substr($checksched, 8))) / 60;
+
+			if($checksched != null && $yesio != null && $checksched != 'RD'){
+				if($checkifOT > 0){
+					foreach($ottime as $oTt):
+						if($oTt['employee_id'] == $emp['id']){
+							if($oTt['date'] == $chkins){
+								$yesot = $checkifOT;
+							}
+						}
+					endforeach;
+					$ot .= "<td>$yesot</td>";
+				
+					if($yesot != null){
+							$totalOT = $totalOT + $checkifOT;
+					}
+
+					$yesot = null;
+					}else{
+						$ot .= "<td></td>";
+					}
+			}else{
+						$ot .= "<td></td>";
+			}
+
+
+			$yesio = null;
 			$chkins = date('Y-m-d', strtotime('+1 day', strtotime($chkins)));
 			$checksched ='';
 		}
 	}
-$data = "";
+		$total_al = null;
+		if($daysabsent == 0 || $daysabsent == null){
+			$total_al = $daysabsent;
+		}else{
+			$total_al = $daysabsent-$daysleave;
+		}
 
-		echo $empname = "<tr class='".$emp['department_id']."'><td>";
-	##Modal
-	 $this->widget(
-		'bootstrap.widgets.TbButton',
-			array(
-				'label' => $emp['firstname'].", ".$emp['lastname'],
-				'size' => 'small',
-				'htmlOptions'=> array(
-				'onclick'=>'getvalue('.$emp['id'].',\'\');'
-			), ));
-	##End Modal
-echo	"</td>".$currD."</tr>";
+		echo $empname = "<tr class='".$emp['department_id']."'><td>".CHtml::link($emp['firstname'].", ".$emp['lastname'],array('employeeSchedule/empSched','id'=>$emp['id']))."</td>".
+		$io."<td style='border-top:1px solid white;'></td>
+		<td>".$totalLates."</td>
+		<td>".$totalUnder."</td>
+		<td>".$totalOT."</td>
+		<td>".$daysleave."</td>
+		<td>".$total_al."</td>
+		</tr>";
+
+		$totalAllOver = $totalAllOver + $totalOT;
+		$totalAllLates = $totalAllLates + $totalLates;
+		$totalAllUnder = $totalAllUnder + $totalUnder;
+		$totalAllLeave = $totalAllLeave + $daysleave;
+		$totalAllAbsent = $totalAllAbsent + $total_al;
+
 		$currD = null;
 		$io = null;
 		$late = null;
@@ -232,15 +328,43 @@ echo	"</td>".$currD."</tr>";
 		$totalUnder = null;
 		$checksched = null;
 		$checkdate = null;
+		$ot = null;
+		$totalOT = null;
+		$yesot = null;
+		$yesio = null;
+		$leave = null;
+		$daysleave = null;
+		$daysabsent = null;
+		$yesleave = null;
 
 	endforeach; //foreach employees
+?>
+</table>
+<br>
+TOTAL
+<table>
+	<tr>
+		<td>Lates in Minutes</td>
+		<td>Undertime in Minutes</td>
+		<td>Overtime in Minutes</td>
+		<td>Leave in Days</td>
+		<td>Absent in Days</td>
+	</tr>
+	<tr>
+		<td><?php echo $totalAllLates;?></td>
+		<td><?php echo $totalAllUnder;?></td>
+		<td><?php echo $totalAllOver;?></td>
+		<td><?php echo $totalAllLeave;?></td>
+		<td><?php echo $totalAllAbsent;?></td>
+	</tr>
+</table>
+<?php
 	} #endtable
 	else{
 		echo "No schedule yet.";
 	}
 ?>
-</table>
-
+<br>
 
 	<div class="row">
 		<?php echo $form->labelEx($model,''); ?>
@@ -278,7 +402,6 @@ foreach($script as $deptF){
 								function <?php echo $varname.'()'?>{
 												if(document.getElementById('<?php echo $varCheckname?>').checked){
 																$('.<?php echo $deptF["id"]?>').show();
-																deptid = 0;
 												}else{
 																$('.<?php echo $deptF["id"]?>').hide();
 												}
@@ -287,114 +410,3 @@ foreach($script as $deptF){
 				<?php
 				  }
 					?>
-
-<script>
-
-function errsched(id,es_id){
-	var r=confirm("Schedule are not created yet. Do you want to add the schedule?");
-	if (r != true){
-		getvalue(id,es_id);
-	}else{
-		window.location.href="../DTR/index.php?r=schedule/create";
-  }
-	
-}
-
-function getvalue(id,es_id){
-
-				$('#myModal').modal();
-				$('#myModal .saveBtn').click(function(){
-
-							var sd = document.getElementById("start_date").value;
-							var ed = document.getElementById("end_date").value;
-							var st = document.getElementById("start_time-start_time-start_time-start_time").value;	
-							var et = document.getElementById("end_time-end_time-end_time-end_time").value;
-
-							var wm = document.getElementById("wmon").checked;
-							var wt = document.getElementById("wtue").checked;
-							var ww = document.getElementById("wwed").checked;
-							var wth= document.getElementById("wthur").checked;
-							var wf = document.getElementById("wfri").checked;
-							var wsa= document.getElementById("wsat").checked;
-							var wsu= document.getElementById("wsun").checked;
-
-							var rm = document.getElementById("rmon").checked;
-							var rt = document.getElementById("rtue").checked;
-							var rw = document.getElementById("rwed").checked;
-							var rth= document.getElementById("rthur").checked;
-							var rf = document.getElementById("rfri").checked;
-							var rsa= document.getElementById("rsat").checked;
-							var rsu= document.getElementById("rsun").checked;
-
-							var msg = "";
-							countw = 0;
-							countr = 0;
-							var allw = '';
-							var allr = '';
-
-							if(sd == '' || sd == null){
-									msg = msg+"*Start Date must be filled <br>";
-							}
-							if(ed == '' || ed == null){
-									msg = msg + "*End Date must be filled <br>";
-							}
-							if(st == '' || st == null){
-									msg = msg + "*Start Time must be filled <br>";
-							}
-							if(et == '' || et == null){
-									msg = msg + "*End Time must be filled <br>";
-							}
-							if(wm == true){countw ++; allw = allw + 'mon,';}
-							if(wt == true){countw ++; allw = allw + 'tue,';}
-							if(ww == true){countw ++; allw = allw + 'wed,';}
-							if(wth== true){countw ++; allw = allw + 'thur,';}
-							if(wf == true){countw ++; allw = allw + 'fri,';}
-							if(wsa== true){countw ++; allw = allw + 'sat,';}
-							if(wsu== true){countw ++; allw = allw + 'sun,';}
-
-							if(rm == true){countr ++; allr = allr + 'mon,';}
-							if(rt == true){countr ++; allr = allr + 'tue,';}
-							if(rw == true){countr ++; allr = allr + 'wed,';}
-							if(rth== true){countr ++; allr = allr + 'thur,';}
-							if(rf == true){countr ++; allr = allr + 'fri,';}
-							if(rsa== true){countr ++; allr = allr + 'sat,';}
-							if(rsu== true){countr ++; allr = allr + 'sun,';}
-							
-							if(countw != 5){
-								msg = msg + "*Please Select 5 days of work<br>";
-							}
-
-							if(countr != 2){
-								msg = msg + "*Please Select 2 days of Rest<br>";
-							}
-
-							if (msg != ""){
-								 document.getElementById("err").innerHTML = msg; 
-								 return false;
-							}else{
-								addvalue(id,sd,ed,st,et,allr,allw,es_id);
-							}
-
-				});
-}
-
-	function addvalue(id,sd,ed,st,et,allr,allw,es_id){
-		$.ajax({
-			type: "GET",
-			url: "../DTR/index.php?r=employeeSchedule/addfield",
-			data: "id=" + id + "&sd=" + sd + "&ed=" + ed + "&st=" + st + "&et=" + et + "&getStart=" + $('#getstartd').val() + "&getEnd=" + $('#getendd').val() + "&allr=" + allr + "&allw=" + allw + "&es_id=" + es_id,//Passing the values to the php page
-			success: function (html) {
-			//REload page
-			thisD = "<?php echo $startDate?>";
-			thisE = "<?php echo $endDate?>";
-			window.location.href="../DTR/index.php?r=employeeSchedule/viewsched&startDate=" + thisD + "&endDate=" + thisE;
-			},
-			});
-	}
-
-</script>
-
-
-<?php
-$this->renderPartial('modal');
-?>

@@ -3,6 +3,7 @@
 /* @var $data Schedule */
 ?>
 
+<br / >
 <div class="view">
 
 	<b><?php echo CHtml::encode($data->getAttributeLabel('id')); ?>:</b>
@@ -33,11 +34,9 @@
 	<?php echo CHtml::encode($data->sat); ?>
 	<br />
 
-	<?php /*
-	<b><?php echo CHtml::encode($data->getAttributeLabel('sun')); ?>:</b>
+	<b><?php echo CHtml::encode($data->getAttributeLabel('sun')); ?></b>
 	<?php echo CHtml::encode($data->sun); ?>
 	<br />
 
-	*/ ?>
 
 </div>

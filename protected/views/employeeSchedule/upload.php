@@ -15,4 +15,4 @@ $this->breadcrumbs=array(
 
 <h3>Upload</h3>
 
-<?php echo $this->renderPartial('_form', array('model'=>$model,'alert'=>$alert,'symbol'=>$symbol)); ?>
+<?php echo $this->renderPartial('_upload', array('model'=>$model,'alert'=>$alert,'symbol'=>$symbol)); ?>
